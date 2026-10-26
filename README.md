@@ -24,7 +24,7 @@ La historia de **Don Arley** (personaje ficticio) y su lote de cacao rechazado e
 
 | Parte | Qué es |
 |---|---|
-| `index.html` | La expedición: mapa para caminar, misiones con minijuegos (carrera de portales, lanzamiento, lluvia de tarjetas, canasta, memoria, unir, ordenar, construir el árbol, batalla), voz que lee e ilumina cada explicación. |
+| `index.html` | La expedición: mapa para caminar, misiones con minijuegos (enlazar con hilos, armar el árbol, lanzamiento, lluvia de tarjetas, canasta, memoria, unir, ordenar, construir el árbol, batalla), voz que lee e ilumina cada explicación. |
 | `vivo/` | Los capítulos de la historia de Don Arley (el viaje del lote, revisar el camino, nace el árbol, otro sistema, demuéstralo). |
 | `salon/` | **Reto del salón**: el proyector crea una sala con QR; cada estudiante entra desde el celular, queda en un equipo (Actores, Datos, Procesos o Control) y compite por puntos mientras el árbol crece en el proyector. Probado con 49 jugadores a la vez. |
 | `docs/` | El árbol de problemas (PowerPoint e imagen), el mapa de actores y las guías en PDF. |

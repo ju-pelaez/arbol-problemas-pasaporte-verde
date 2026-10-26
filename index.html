@@ -356,6 +356,46 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 @keyframes cineSale{to{opacity:0}}
 .leyendo{position:relative;z-index:2;box-shadow:0 0 0 4px #FFC23D,0 0 26px rgba(255,194,61,.6)!important;border-radius:12px;transform:scale(1.015);transition:box-shadow .25s,transform .25s}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.w{opacity:1}}
+
+/* enlazar: hilos SVG entre tarjetas y grupos */
+.enlazar{position:relative;display:grid;grid-template-columns:1fr .8fr;gap:clamp(40px,10vw,120px);align-items:center;min-height:300px;padding:6px 0}
+.enlazar .hilos{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;z-index:3}
+.ecol{display:grid;gap:10px;align-content:center}
+.ecarta{position:relative;width:100%;touch-action:none;cursor:grab;animation:entraCarta .4s cubic-bezier(.22,1,.36,1) both}
+.ecarta:nth-child(2){animation-delay:.05s}.ecarta:nth-child(3){animation-delay:.1s}.ecarta:nth-child(4){animation-delay:.15s}
+@keyframes entraCarta{from{opacity:0;transform:translateX(-14px);filter:blur(4px)}}
+.ecarta .pto,.socket .pto{position:absolute;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--gold);border:2.5px solid var(--ink)}
+.ecarta .pto{right:-9px}.socket .pto{left:-9px;background:var(--c)}
+.ecarta.viaja{transition:transform .5s cubic-bezier(.65,0,.35,1),opacity .5s;transform:translate(var(--vx),var(--vy)) scale(.4);opacity:0}
+.socket{position:relative;display:flex;align-items:center;gap:8px;justify-content:space-between;width:100%;min-height:64px;padding:10px 14px 10px 18px;border:3px solid var(--ink);border-radius:16px;background:var(--bg);color:var(--ink);font:inherit;font-weight:900;text-align:left;cursor:pointer;box-shadow:0 4px 0 var(--ink);transition:transform .15s cubic-bezier(.22,1,.36,1)}
+.socket b{color:var(--c)}
+.socket .n{min-width:30px;height:30px;border-radius:99px;display:grid;place-items:center;background:var(--c);color:#fff;font-size:.9rem}
+.socket.over{transform:scale(1.04);outline:4px solid var(--gold)}
+.socket.pista{outline:4px dashed var(--ok)}
+.socket.recibe{animation:recibe .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes recibe{40%{transform:scale(1.07)}}
+.hilo{fill:none;stroke:var(--gold);stroke-width:5;stroke-linecap:round}
+.hilo.tirando{stroke-dasharray:2 10;animation:corre .5s linear infinite}
+@keyframes corre{to{stroke-dashoffset:-24}}
+.hilo.dibuja{stroke-dasharray:1200;stroke-dashoffset:1200;animation:traza .35s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes traza{to{stroke-dashoffset:0}}
+.hilo.bien{stroke-width:7}
+.hilo.mal{stroke:var(--bad);animation:tiembla .3s 2}
+@keyframes tiembla{25%{transform:translateY(-4px)}75%{transform:translateY(4px)}}
+.hilo.sale,.hilo.suelta{transition:opacity .3s;opacity:0}
+.zone.recibe{animation:recibe .45s cubic-bezier(.34,1.56,.64,1)}
+@media (max-width:560px){.enlazar{grid-template-columns:1fr .85fr;gap:34px}.socket{min-height:54px;padding:8px 10px 8px 14px;font-size:.85rem}.ecarta{font-size:.82rem}}
+@media (prefers-reduced-motion:reduce){.ecarta,.ecarta.viaja,.socket.recibe,.zone.recibe,.hilo{animation:none!important;transition:none!important}}
+
+/* armar: el tablero tiene forma de árbol */
+.build.arbolito{justify-items:center;gap:10px}
+.arbolito .capa{animation:entraCarta .45s cubic-bezier(.22,1,.36,1) both}
+.arbolito .capa:nth-child(2){animation-delay:.06s}.arbolito .capa:nth-child(3){animation-delay:.12s}.arbolito .capa:nth-child(4){animation-delay:.18s}
+.arbolito .capa.copa .zone{border-radius:999px 999px 26px 26px / 60px 60px 26px 26px;border-style:solid;background:radial-gradient(120% 140% at 50% 0%,#fff 0%,var(--bg) 55%);padding:10px 18px 8px;box-shadow:inset 0 -6px 0 rgba(0,0,0,.06)}
+.arbolito .capa.copa .zone .zh{justify-content:center;gap:10px;font-size:.72rem}
+.arbolito .ctronco{width:34%;min-width:170px;background:linear-gradient(90deg,#6B4426,#8A5A34 50%,#6B4426);border-radius:10px;padding:10px;position:relative}
+.arbolito .capa.raiz .zone{border-radius:12px 12px 26px 26px;border-style:dashed}
+.arbolito .zone.full{border-style:solid}
 </style>
 </head>
 <body>
@@ -1003,11 +1043,11 @@ RUN.sort=(host,st,ctx,done)=>{
   upd();requestAnimationFrame(ciclo);
 };
 
-/* ---------- minijuegos de clasificar: tres formas distintas ----------
-   Cada paso de clasificar trae "modo": 'portales', 'lanzar' o 'lluvia' (por defecto).
+/* ---------- minijuegos de clasificar: cuatro formas distintas ----------
+   Cada paso de clasificar trae "modo": 'enlazar', 'armar', 'lanzar' o 'lluvia' (por defecto).
    Así cada misión se juega diferente, pero todas enseñan lo mismo: poner cada cosa en su lugar. */
 RUN.lluvia=RUN.sort;
-RUN.sort=(host,st,ctx,done)=>(st.modo==='portales'?RUN.portales:st.modo==='lanzar'?RUN.lanzar:RUN.lluvia)(host,st,ctx,done);
+RUN.sort=(host,st,ctx,done)=>({enlazar:RUN.enlazar,armar:RUN.armar,lanzar:RUN.lanzar}[st.modo]||RUN.lluvia)(host,st,ctx,done);
 
 // Ceibita dibujada en canvas (la usan los juegos de movimiento).
 function dibujaCeibita(g,x,y,fase,esc=1,rojo=false){
@@ -1060,92 +1100,6 @@ function cartel(g,cw,texto,pregunta){
   g.fillStyle='#14231B';g.font='700 17px "Nunito",system-ui,sans-serif';lineas.forEach((l,k)=>g.fillText(l,cw/2,y+31+k*21));
   return y+h;
 }
-
-/* ---------- CARRERA DE PORTALES ----------
-   Ceibita corre sola. Arriba sale la tarjeta. Viene una pared de puertas (una por caja):
-   hay que cambiar de carril para pasar por la puerta correcta. */
-RUN.portales=(host,st,ctx,done)=>{
-  const E=marcoClasificar(host,st,'Minijuego · Carrera de portales 🏃','Ceibita corre sola. Cámbiala de carril con <b>↑ ↓</b> (o toca o arrastra) y pasa por la puerta correcta. Recoge semillas 🌰.');
-  E.ctx=ctx;E.done=done;
-  const {cv,g,tam}=E,B=st.buckets,n=B.length,TOP=74,PX=120;
-  let carril=Math.floor(n/2),py=0,fase=0,t=0,last=performance.now(),dist=0;
-  let carta=null,anterior=null,pared=null,semillas=[],parts=[],textos=[],sacude=0,choque=0,orden=B.map((b,i)=>i);
-  const lh=()=>(tam.ch-TOP)/n,ly=i=>TOP+lh()*(i+.5);
-  py=ly(carril);
-  const vel=()=>Math.min(300,165+E.bien*9);
-  function nueva(){
-    if(!E.cola.length){carta=null;return}
-    carta=E.cola.shift();
-    if(E.bien>=2)orden=shuffle(B.map((b,i)=>i));   // desde la 3ª tarjeta las puertas cambian de lugar
-    pared={x:tam.cw+60,hecho:false,ok:null};
-    for(let k=0;k<2;k++)semillas.push({x:tam.cw+260+k*170,carril:Math.floor(Math.random()*n),y:0});
-    if(E.bien===0&&E.vidas===3)E.say('Lee la tarjeta de arriba y ponte en el carril de su puerta.','');
-  }
-  function poner(i){carril=Math.max(0,Math.min(n-1,i));tone('tap')}
-  const kd=e=>{if(!E.run)return;const k=e.key;
-    if(k==='ArrowUp'||k==='w'||k==='W'){e.preventDefault();poner(carril-1)}
-    else if(k==='ArrowDown'||k==='s'||k==='S'){e.preventDefault();poner(carril+1)}
-    else if(/^[1-9]$/.test(k)&&+k<=n){e.preventDefault();poner(+k-1)}};
-  addEventListener('keydown',kd);
-  const carrilDe=e=>{const r=cv.getBoundingClientRect(),y=(e.clientY-r.top)*(tam.ch/r.height);return Math.max(0,Math.min(n-1,Math.floor((y-TOP)/lh())))};
-  let arr=false;
-  cv.addEventListener('pointerdown',e=>{ac();arr=true;try{cv.setPointerCapture(e.pointerId)}catch(_){}poner(carrilDe(e))});
-  cv.addEventListener('pointermove',e=>{if(arr){const c=carrilDe(e);if(c!==carril)poner(c)}});
-  cv.addEventListener('pointerup',()=>{arr=false});
-  const parar=()=>{removeEventListener('keydown',kd)};
-  function chispas(x,y,color,c){for(let i=0;i<c;i++){const a=Math.random()*7,v=60+Math.random()*240;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,vida:1,color})}}
-
-  function dibujar(){
-    const {cw,ch}=tam;g.save();if(sacude>0)g.translate((Math.random()-.5)*16*sacude,(Math.random()-.5)*10*sacude);
-    const f=g.createLinearGradient(0,0,0,ch);f.addColorStop(0,'#0B2A3A');f.addColorStop(1,'#123F2D');g.fillStyle=f;g.fillRect(-20,-20,cw+40,ch+40);
-    // carriles con suelo que corre
-    for(let i=0;i<n;i++){const y=TOP+lh()*i;g.fillStyle=i%2?'rgba(255,255,255,.035)':'rgba(0,0,0,.08)';g.fillRect(0,y,cw,lh());
-      g.strokeStyle='rgba(255,247,232,.14)';g.setLineDash([18,16]);g.lineDashOffset=dist%34;g.beginPath();g.moveTo(0,y);g.lineTo(cw,y);g.stroke();g.setLineDash([])}
-    // hierba que pasa
-    g.strokeStyle='rgba(126,211,154,.25)';g.lineWidth=2;for(let x=-(dist*1.3%57);x<cw;x+=57){for(let i=0;i<n;i++){const y=TOP+lh()*(i+1)-6;g.beginPath();g.moveTo(x,y);g.lineTo(x-4,y-9);g.moveTo(x+3,y);g.lineTo(x+6,y-8);g.stroke()}}
-    // semillas
-    for(const s of semillas){if(s.tomada)continue;const y=ly(s.carril)+Math.sin(t*4+s.x)*4;g.shadowColor='#FFC23D';g.shadowBlur=14;g.fillStyle='#FFC23D';g.beginPath();g.ellipse(s.x,y,8,11,.5,0,7);g.fill();g.shadowBlur=0;g.strokeStyle='#14231B';g.lineWidth=2;g.stroke()}
-    // la pared de puertas
-    if(pared){
-      for(let j=0;j<n;j++){const i=orden[j],b=B[i],y=TOP+lh()*j+5,h=lh()-10,w=Math.min(150,cw*.2),x=pared.x;
-        const abierta=pared.hecho&&pared.ok&&j===carril;
-        g.globalAlpha=abierta?.35:1;
-        g.shadowColor=b.c;g.shadowBlur=pared.hecho?0:18;rr(g,x,y,w,h,12);g.fillStyle=b.c;g.fill();g.shadowBlur=0;g.lineWidth=3;g.strokeStyle='#14231B';g.stroke();
-        g.fillStyle='#fff';g.font='900 14px "Nunito",sans-serif';g.textAlign='center';g.textBaseline='middle';
-        const ls=wrapT(g,b.label,w-14).slice(0,3);ls.forEach((l,k)=>g.fillText(l,x+w/2,y+h/2+(k-(ls.length-1)/2)*16));
-        g.globalAlpha=1}
-    }
-    // Ceibita
-    dibujaCeibita(g,PX,py+lh()*.32,fase,Math.min(1,lh()/95)+.15,choque>0);
-    // tarjeta arriba
-    // la tarjeta sigue visible hasta que la pared pase, para ver qué se clasificó
-    if(carta)cartel(g,cw,carta.text,'¿POR QUÉ PUERTA VA?');else if(anterior&&pared)cartel(g,cw,anterior.text,anterior.ok?'¡BIEN!':'ERA OTRA PUERTA');
-    for(const p of parts){g.globalAlpha=Math.max(0,p.vida);g.fillStyle=p.color;g.beginPath();g.arc(p.x,p.y,3,0,7);g.fill()}g.globalAlpha=1;
-    for(const x of textos){g.globalAlpha=Math.max(0,x.vida);g.fillStyle='#FFC23D';g.font='900 22px "Nunito",sans-serif';g.textAlign='center';g.strokeStyle='#14231B';g.lineWidth=4;g.strokeText(x.txt,x.x,x.y);g.fillText(x.txt,x.x,x.y)}g.globalAlpha=1;
-    g.restore();
-  }
-  function ciclo(ahora){
-    if(!E.run)return;if(!cv.isConnected){E.run=false;parar();return}
-    const dt=Math.min(.05,(ahora-last)/1000);last=ahora;t+=dt;fase+=dt*14;
-    const v=carta?vel():120;dist+=v*dt;
-    py+=(ly(carril)-py)*Math.min(1,dt*14);
-    if(!carta&&!pared)nueva();
-    if(pared){pared.x-=v*dt;
-      if(!pared.hecho&&pared.x<=PX+16){pared.hecho=true;const ok=orden[carril]===B.findIndex(b=>b.id===carta.b);pared.ok=ok;
-        if(ok){const p=E.acierto(carta.text);chispas(PX+30,py,B[orden[carril]].c,28);textos.push({x:PX+40,y:py-50,txt:'+'+p,vida:1})}
-        else{E.error(carta);sacude=.4;choque=.6;chispas(PX+20,py,'#DA3832',20)}
-        anterior={text:carta.text,ok};carta=null;
-        if(E.bien>=E.total)return E.fin(true,parar);if(E.vidas<=0)return E.fin(false,parar)}
-      if(pared.x<-200)pared=null}
-    for(const s of semillas){s.x-=v*dt;if(!s.tomada&&s.carril===carril&&Math.abs(s.x-PX)<22){s.tomada=true;E.puntos+=2;E.upd();tone('tap');chispas(s.x,ly(s.carril),'#FFC23D',10)}}
-    semillas=semillas.filter(s=>s.x>-30&&!s.tomada);
-    for(const p of parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=300*dt;p.vida-=dt*1.5}parts=parts.filter(p=>p.vida>0);
-    for(const x of textos){x.y-=50*dt;x.vida-=dt*1.2}textos=textos.filter(x=>x.vida>0);
-    if(sacude>0)sacude=Math.max(0,sacude-dt);if(choque>0)choque=Math.max(0,choque-dt);
-    dibujar();requestAnimationFrame(ciclo);
-  }
-  E.upd();requestAnimationFrame(ciclo);
-};
 
 /* ---------- LANZAMIENTO ----------
    Resortera: arrastra hacia atrás desde cualquier parte, apunta con la línea de puntos y suelta.
@@ -1226,9 +1180,137 @@ RUN.lanzar=(host,st,ctx,done)=>{
   E.upd();requestAnimationFrame(ciclo);
 };
 
+/* ---------- ENLAZAR ----------
+   Las tarjetas están a la izquierda y los grupos a la derecha. Se arrastra un hilo desde la tarjeta
+   hasta su grupo (o se toca la tarjeta y después el grupo). Si es correcto, la tarjeta viaja por el hilo. */
+RUN.enlazar=(host,st,ctx,done)=>{
+  const B=st.buckets,total=st.items.length;
+  let cola=shuffle(st.items.map((it,k)=>({...it,k}))),bien=0,vidas=3,combo=0,puntos=0,sel=null,ocupado=false;
+  host.innerHTML=`<div class="gtitle"><span class="eyebrow" style="color:var(--gold)">Minijuego · Enlazar 🔗</span><h3>${st.title}</h3><p>Arrastra un hilo desde cada tarjeta hasta su grupo (o toca la tarjeta y después el grupo).</p></div>
+    <div class="gstat"><span id="eq">🔗 0/${total}</span><span id="ec"></span><span id="ep">⭐ 0</span><span id="eh">❤️❤️❤️</span></div>
+    <div class="enlazar"><svg class="hilos" aria-hidden="true"></svg><div class="ecol izq"></div>
+      <div class="ecol der">${B.map(b=>`<button class="socket" data-b="${b.id}" style="--c:${b.c};--bg:${b.bg}"><i class="pto"></i><b>${b.label}</b><span class="n">0</span></button>`).join('')}</div></div>
+    <p class="fb" aria-live="polite"></p><div class="act" id="ea"></div>`;
+  const caja=$('.enlazar',host),svg=$('.hilos',host),izq=$('.izq',host),fb=$('.fb',host);
+  const say=(m,c)=>{fb.textContent=m;fb.className='fb '+(c||'')};
+  const upd=()=>{$('#eq',host).textContent=`🔗 ${bien}/${total}`;$('#ep',host).textContent=`⭐ ${puntos}`;$('#ec',host).textContent=combo>=2?`🔥 x${combo}`:'';$('#eh',host).textContent='❤️'.repeat(Math.max(0,vidas))+'🤍'.repeat(3-Math.max(0,vidas))};
+  // Punto (x, y) de un elemento, medido dentro de la caja del juego.
+  const pt=(el,lado)=>{const r=el.getBoundingClientRect(),c=caja.getBoundingClientRect();return {x:(lado==='der'?r.right:r.left)-c.left,y:r.top+r.height/2-c.top}};
+  const curva=(a,b)=>{const dx=Math.max(40,Math.abs(b.x-a.x)*.5);return `M${a.x},${a.y} C${a.x+dx},${a.y} ${b.x-dx},${b.y} ${b.x},${b.y}`};
+  const hilo=(cls)=>{const h=document.createElementNS('http://www.w3.org/2000/svg','path');h.setAttribute('class','hilo '+(cls||''));svg.appendChild(h);return h};
+  function tarjetas(){
+    sel=null;const vis=cola.slice(0,4);
+    izq.innerHTML=vis.map((it,i)=>`<button class="tile ecarta" data-i="${i}">${it.text}<i class="pto"></i></button>`).join('')||'';
+    $$('.ecarta',izq).forEach(conectarTarjeta);
+  }
+  // Decide si el hilo llegó al grupo correcto.
+  function juzgar(i,sock,h){
+    const it=cola[i],t=$(`.ecarta[data-i="${i}"]`,izq);if(!it||!t||ocupado){if(h)h.remove();return}
+    const a=pt(t,'der'),b=pt(sock,'izq');
+    if(!h){h=hilo();h.setAttribute('d',curva(a,b));h.classList.add('dibuja')}else h.setAttribute('d',curva(a,b));
+    if(it.b===sock.dataset.b){
+      ocupado=true;bien++;combo++;const p=10+Math.min(combo,6)*2;puntos+=p;tone(combo>=3?'win':'place');addXP(3,sock);
+      h.style.stroke=sock.style.getPropertyValue('--c');h.classList.add('bien');
+      say((combo>=3?`¡Combo x${combo}! `:pick(['¡Bien! ','¡Exacto! ','¡Enlazado! ']))+it.text+' ✔','good');
+      // La tarjeta viaja por el hilo hasta el grupo.
+      const r1=t.getBoundingClientRect(),r2=sock.getBoundingClientRect();
+      t.style.setProperty('--vx',(r2.left-r1.left)+'px');t.style.setProperty('--vy',(r2.top+r2.height/2-r1.top-r1.height/2)+'px');t.classList.add('viaja');
+      setTimeout(()=>{const n=$('.n',sock);n.textContent=+n.textContent+1;sock.classList.remove('recibe');void sock.offsetWidth;sock.classList.add('recibe');
+        h.classList.add('sale');setTimeout(()=>h.remove(),400);cola.splice(i,1);ocupado=false;upd();
+        if(!cola.length)return fin(true);tarjetas()},520);
+    }else{
+      vidas--;combo=0;tone('bad');h.classList.add('mal');t.classList.remove('shake');void t.offsetWidth;t.classList.add('shake');
+      const ok=B.find(x=>x.id===it.b);say(`"${it.text}" va en ${ok.label}. ${it.why||'Vuelve a salir más adelante.'}`,'bad');
+      $$('.socket',host).forEach(x=>x.classList.toggle('pista',x.dataset.b===it.b));
+      setTimeout(()=>{h.remove();$$('.socket',host).forEach(x=>x.classList.remove('pista'))},900);
+      upd();if(vidas<=0)return fin(false);
+      cola.splice(i,1);cola.splice(Math.min(cola.length,3+Math.floor(Math.random()*3)),0,it);setTimeout(tarjetas,700);
+    }
+  }
+  function conectarTarjeta(t){
+    let h=null,sx=null,sy=0,arrastra=false;
+    t.addEventListener('pointerdown',e=>{if(ocupado)return;sx=e.clientX;sy=e.clientY;arrastra=false;try{t.setPointerCapture(e.pointerId)}catch(_){}});
+    t.addEventListener('pointermove',e=>{if(sx==null)return;
+      if(!arrastra&&Math.hypot(e.clientX-sx,e.clientY-sy)>6){arrastra=true;h=hilo('tirando');t.classList.add('sel')}
+      if(arrastra){const c=caja.getBoundingClientRect();h.setAttribute('d',curva(pt(t,'der'),{x:e.clientX-c.left,y:e.clientY-c.top}));
+        const el=document.elementFromPoint(e.clientX,e.clientY),so=el&&el.closest('.socket');$$('.socket',host).forEach(x=>x.classList.toggle('over',x===so))}});
+    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;$$('.socket',host).forEach(x=>x.classList.remove('over'));
+      if(arrastra){t.classList.remove('sel');h.classList.remove('tirando');const el=document.elementFromPoint(e.clientX,e.clientY),so=el&&el.closest('.socket');
+        if(so)juzgar(+t.dataset.i,so,h);else{h.classList.add('suelta');const hh=h;setTimeout(()=>hh.remove(),250)}h=null}
+      else{$$('.ecarta',izq).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su grupo 👉','')}});
+    t.addEventListener('pointercancel',()=>{sx=null;if(h){h.remove();h=null}});
+  }
+  $$('.socket',host).forEach(so=>so.onclick=()=>{if(sel!=null)juzgar(sel,so,null);else say('Primero toca una tarjeta de la izquierda 👈','')});
+  function fin(gano){
+    const a=$('#ea',host);
+    if(gano){burst(50);tone('win');say(`¡Todo enlazado! ${puntos} puntos 🌳`,'good');a.innerHTML='<button class="btn" id="nx">¡Listo! →</button>';$('#nx',a).onclick=()=>{tone('tap');done()}}
+    else{say('¡Casi! Se acabaron los corazones. Ya sabes dónde van las que fallaste: ¡otra vez!','bad');a.innerHTML='<button class="btn" id="rt">Otra vez</button>';$('#rt',a).onclick=()=>RUN.enlazar(host,st,ctx,done)}
+  }
+  tarjetas();upd();
+};
+
+/* ---------- ARMAR EL ÁRBOL ----------
+   Las cajas son partes del árbol (pisos de la copa, raíces, suelo). Se arrastra cada tarjeta a su
+   parte del árbol (o se toca la tarjeta y después la parte). st.capas dice cómo se apilan, de arriba abajo. */
+RUN.armar=(host,st,ctx,done)=>{
+  const queue=shuffle(st.items.map(it=>({t:it.text,z:it.b,why:it.why})));
+  const total=queue.length;let placed=0,sel=null;const miss={};
+  const cap=id=>st.items.filter(it=>it.b===id).length;
+  const zona=id=>{const b=st.buckets.find(x=>x.id===id);return `<div class="zone" data-z="${id}" data-cap="${cap(id)}" style="--c:${b.c};--bg:${b.bg}"><div class="zh"><span>${b.label}</span><span class="cnt">0/${cap(id)}</span></div><div class="zin"></div></div>`};
+  const capas=st.capas||st.buckets.map(b=>b.id),it=capas.indexOf('tronco');
+  const capa=(c,n)=>{
+    if(c==='tronco')return `<div class="btrunk ctronco">🪵 ${st.tronco||'Problema central'}</div>`;
+    const lugar=it<0?'':n<it?'copa':'raiz',ancho=lugar==='copa'?Math.round(100-(it-1-n)*16)+'%':'100%';
+    const html=Array.isArray(c)?`<div class="zrow" style="grid-template-columns:repeat(${c.length},1fr)">${c.map(zona).join('')}</div>`:zona(c);
+    return `<div class="capa ${lugar}" style="width:${ancho}">${html}</div>`};
+  host.innerHTML=`<div class="gtitle"><span class="eyebrow" style="color:var(--gold)">Minijuego · Arma el árbol 🌳</span><h3>${st.title}</h3><p>Arrastra cada tarjeta a su parte del árbol (o tócala y luego toca su lugar).</p></div>
+   <div class="gstat"><span id="bp">🌳 0/${total}</span></div>
+   <div class="build arbolito">${capas.map(capa).join('')}</div>
+   <div class="tray" id="tray"></div><p class="fb" aria-live="polite"></p><div class="act"><button class="btn" id="nx" hidden>¡Listo! →</button></div>`;
+  const fb=$('.fb',host),say=(m,c)=>{fb.textContent=m;fb.className='fb '+c};
+  const zoneAt=(x,y)=>{const e=document.elementFromPoint(x,y);return e?e.closest('.zone'):null};
+  function place(i,z){
+    const c=queue[i];if(!c||!z)return;
+    if(c.z===z.dataset.z){
+      const sp=document.createElement('span');sp.textContent=c.t;$('.zin',z).appendChild(sp);
+      const n=$('.zin',z).children.length;$('.cnt',z).textContent=n+'/'+z.dataset.cap;if(n>=+z.dataset.cap)z.classList.add('full');
+      z.classList.remove('recibe');void z.offsetWidth;z.classList.add('recibe');
+      queue.splice(i,1);placed++;$('#bp',host).textContent='🌳 '+placed+'/'+total;tone('place');addXP(3,z);say(pick(['¡En su lugar!','¡Bien!','¡Eso!']),'good');
+      $$('.zone',host).forEach(x=>x.classList.remove('hint'));tray();
+      if(!queue.length){burst(70);tone('win');say('¡Árbol armado! 🌳','good');$('#nx',host).hidden=false}
+    }else{
+      miss[c.t]=(miss[c.t]||0)+1;tone('bad');z.classList.remove('shake');void z.offsetWidth;z.classList.add('shake');
+      if(miss[c.t]>=2){const ok=$(`.zone[data-z="${c.z}"]`,host);ok.classList.remove('hint');void ok.offsetWidth;ok.classList.add('hint');say('Pista: va en la parte que brilla ✨','bad')}
+      else say(c.why||'Ahí no va. Piensa en qué parte del árbol le toca.','bad');
+    }
+  }
+  function attach(t){
+    let sx=null,sy=0,drag=false,gh=null;
+    t.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;drag=false;try{t.setPointerCapture(e.pointerId)}catch(_){}});
+    t.addEventListener('pointermove',e=>{if(sx==null)return;if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)>8){drag=true;gh=t.cloneNode(true);gh.classList.add('ghost','sel');document.body.appendChild(gh)}
+      if(drag){gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';const z=zoneAt(e.clientX,e.clientY);$$('.zone',host).forEach(x=>x.classList.toggle('over',x===z))}});
+    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;
+      if(drag){gh.remove();gh=null;$$('.zone',host).forEach(x=>x.classList.remove('over'));const z=zoneAt(e.clientX,e.clientY);if(z)place(+t.dataset.i,z)}
+      else{$$('.tray .tile',host).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su lugar en el árbol 👆','')}});
+    t.addEventListener('pointercancel',()=>{sx=null;if(gh){gh.remove();gh=null}});
+  }
+  function tray(){const tr=$('#tray',host);sel=null;const vis=queue.slice(0,3);
+    tr.innerHTML=vis.length?vis.map((c,i)=>`<button class="tile" data-i="${i}">${c.t}</button>`).join(''):'<p class="center" style="margin:0">¡No quedan piezas! 🎉</p>';
+    $$('.tile',tr).forEach(attach)}
+  $$('.zone',host).forEach(z=>z.onclick=()=>{if(sel!=null)place(sel,z);else say('Primero toca una tarjeta de abajo 👇','')});
+  tray();
+  $('#nx',host).onclick=()=>{tone('tap');done()};
+};
+
 // Cada misión con un juego distinto.
-(()=>{const modos={sistema:'portales',modelo:'lluvia',problema:'lanzar',datos:'lanzar',efectos:'portales',entorno:'portales'};
-  Object.entries(modos).forEach(([mid,modo])=>{const s=MBYID[mid].steps.find(x=>x.t==='sort');if(s)s.modo=modo})})();
+(()=>{const modos={sistema:'enlazar',modelo:'enlazar',problema:'lanzar',datos:'lanzar',efectos:'armar',entorno:'armar'};
+  Object.entries(modos).forEach(([mid,modo])=>{const s=MBYID[mid].steps.find(x=>x.t==='sort');if(s)s.modo=modo});
+  // Cómo se apilan las partes del árbol en los juegos de armar (de arriba hacia abajo).
+  const ef=MBYID.efectos.steps.find(x=>x.t==='sort');if(ef){ef.capas=['f','i','d','tronco'];ef.title='Arma la copa: ¿en qué piso va cada efecto?'}
+  const en=MBYID.entorno.steps.find(x=>x.t==='sort');if(en){en.capas=['tronco','in','out'];en.title='Arma la base del árbol: ¿raíz del sistema o suelo del entorno?'}
+  // Las otras clasificaciones de datos y problema también se arman en el árbol.
+  const pr=MBYID.problema.steps.filter(x=>x.t==='sort')[0];if(pr){pr.modo='armar';pr.capas=['tronco',['act','dat','pro','con']];pr.title='Arma las raíces: ¿a qué componente pertenece cada elemento?'}
+})();
 
 RUN.order=(host,st,ctx,done)=>{
   const tiles=shuffle(st.items.map((t,k)=>({t,k})));let exp=0;const miss={};
