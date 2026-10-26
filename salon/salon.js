@@ -29,7 +29,12 @@ const EQUIPOS = [
   { n: 'Procesos', ic: '🔁', c: '#D0661C' },
   { n: 'Control',  ic: '🎯', c: '#C99300' },
 ];
-const REACCIONES = ['🔥', '👏', '🌳', '😮'];
+const REACCIONES = ['🔥', '👏', '🌳', '😮', '😂', '💚', '🤯', '🙌'];
+// Chat del salón: frases rápidas para no tener que escribir.
+const FRASES = ['¡Vamos, equipo! 💪', '¡Eso! 🔥', '¿Cuál es? 🤔', '¡Qué rápido! ⚡', '¡Bien, salón! 🌳', 'Ayúdenme 🙏'];
+// Palabras que se tapan en el chat (es una clase).
+const GROSERIAS = /\b(h?ijue?p\w*|hp|gonorrea\w*|malpari\w*|marica\w*|maric[oó]n\w*|mierd\w*|put[ao]s?|perra\w*|zorr[ao]s?|verg\w*|careverg\w*|pendej\w*|imb[eé]cil\w*|idiot\w*|est[uú]pid\w*|g[uü]ev[oó]n\w*|huev[oó]n\w*|culo\w*|chimbo\w*)\b/gi;
+const limpiarChat = t => String(t || '').replace(/\s+/g, ' ').trim().slice(0, 60).replace(GROSERIAS, '•••');
 
 const colorDe = (reto, i) => (reto.tipo === 'falla' ? COLOR_COMP : COLORES)[i];
 const segs = ms => (ms / 1000).toFixed(1).replace('.', ',') + ' s';
@@ -183,6 +188,8 @@ function anfitrion() {
   let retos = armarRetos(), i = -1, estado = 'sala', inicio = 0, reloj = null;
   const respuestas = new Map();       // id del jugador -> { k, ms }
   const piezas = {};                  // id de pieza -> 'viva' | 'floja'
+  let chatOn = true;                  // el presentador lo apaga o prende con la tecla C
+  const chatTiempos = [];             // para no pasar de 3 mensajes cada 2 segundos en todo el salón
 
   const enviar = (conn, msg) => { try { if (conn && conn.open) conn.send(msg); } catch (e) { /* se fue */ } };
   const todos = () => [...jugadores.values()];
@@ -197,7 +204,7 @@ function anfitrion() {
     const m = todos().filter(j => j.equipo === k);
     return { ...e, k, cant: m.length, prom: m.length ? Math.round(m.reduce((s, j) => s + j.puntos, 0) / m.length) : 0 };
   }).sort((a, b) => b.prom - a.prom);
-  const bienvenida = j => ({ t: 'bienvenido', nombre: j.nombre, avatar: j.avatar, equipo: j.equipo, puntos: j.puntos });
+  const bienvenida = j => ({ t: 'bienvenido', nombre: j.nombre, avatar: j.avatar, equipo: j.equipo, puntos: j.puntos, chat: chatOn });
 
   function abrirPeer() {
     peer = new CanalPeer(PREFIJO + codigo);
@@ -261,12 +268,45 @@ function anfitrion() {
       actualizarMuro(pid);
       if (respuestas.size >= enLinea().length) revelar();
     }
+    if (d.t === 'chat' && chatOn) {
+      const ahora = performance.now();
+      if (ahora - (j.ultChat || 0) < 3000) return;            // una frase cada 3 s por persona
+      while (chatTiempos.length && ahora - chatTiempos[0] > 2000) chatTiempos.shift();
+      if (chatTiempos.length >= 3) return;                      // y máximo 3 cada 2 s en todo el salón
+      const texto = limpiarChat(d.texto);
+      if (!texto) return;
+      j.ultChat = ahora; chatTiempos.push(ahora);
+      const msg = { t: 'chat', pid, nombre: j.nombre, avatar: j.avatar, eq: j.equipo, texto };
+      peer.difundir(msg);
+      mostrarChat(msg);
+      return;
+    }
     if (d.t === 'reac' && REACCIONES.includes(d.e)) {
       const ahora = performance.now();
       if (ahora - (j.ultReac || 0) < 1200) return;   // máximo una reacción cada 1,2 s por persona
       j.ultReac = ahora;
       flotar(d.e, j);
     }
+  }
+
+  // Chat en el proyector: burbujas abajo a la derecha que se van solas a los 10 s.
+  function mostrarChat(msg) {
+    let caja = document.getElementById('chat-proy');
+    if (!caja) { caja = document.createElement('div'); caja.id = 'chat-proy'; document.body.appendChild(caja); }
+    const b = document.createElement('div');
+    b.className = 'burbuja';
+    b.style.setProperty('--c', (EQUIPOS[msg.eq] || EQUIPOS[0]).c);
+    b.innerHTML = `<span class="av">${msg.avatar}</span><span><b>${esc(msg.nombre)}</b>${esc(msg.texto)}</span>`;
+    caja.appendChild(b);
+    while (caja.children.length > 5) caja.firstElementChild.remove();
+    sonar('tic');
+    setTimeout(() => { b.classList.add('sale'); setTimeout(() => b.remove(), 400); }, 10000);
+  }
+  function indicadorChat() {
+    let el = document.getElementById('chat-ind');
+    if (!el) { el = document.createElement('div'); el.id = 'chat-ind'; document.body.appendChild(el); }
+    el.className = chatOn ? 'on' : 'off';
+    el.textContent = chatOn ? '💬 Chat activo · tecla C para apagar' : '💬 Chat apagado · tecla C para prender';
   }
 
   // Reacciones que suben por la pantalla del proyector.
@@ -585,6 +625,13 @@ function anfitrion() {
   // Teclado para presentar: → o Espacio avanza; 1-4 elige (sin celulares).
   addEventListener('keydown', e => {
     if (enTransicion) return;
+    if (e.key === 'c' || e.key === 'C') {
+      chatOn = !chatOn;
+      peer.difundir({ t: 'chat-estado', on: chatOn });
+      indicadorChat();
+      if (!chatOn) { const caja = document.getElementById('chat-proy'); if (caja) caja.innerHTML = ''; }
+      return;
+    }
     if (e.key === 'ArrowRight' || e.key === ' ') {
       if (estado === 'pregunta') { e.preventDefault(); revelar(); }
       else if (estado === 'revelado') { e.preventDefault(); $('#revelar').click(); }
@@ -595,6 +642,7 @@ function anfitrion() {
   });
 
   pintarSala();
+  indicadorChat();
   abrirPeer();
 }
 
@@ -606,18 +654,49 @@ function jugador(codigo) {
   try { guardado = JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch (e) { /* sin almacenamiento */ }
   const yo = { pid: guardado.pid || 'j' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36), nombre: guardado.nombre || '', avatar: '📱', equipo: -1, puntos: 0 };
   let peer = null, conn = null, idPregunta = -1, dentro = false, intentos = 0, reintento = null, espera = null, ultReac = 0;
+  let chatOn = true, ultChat = 0;
+  const feed = [];   // los últimos mensajes del chat del salón
   const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify({ pid: yo.pid, nombre: yo.nombre })); } catch (e) { /* no pasa nada */ } };
   const vibrar = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* no pasa nada */ } };
 
   // Cada pantalla lleva arriba el equipo y, si se pide, la barra de reacciones abajo.
   let ultimaPantalla = '';
+  // Chat en el celular: los últimos mensajes, frases rápidas y una caja para escribir.
+  const feedHTML = () => feed.length
+    ? feed.map(m => `<div class="msg${m.pid === yo.pid ? ' mio' : ''}" style="--c:${(EQUIPOS[m.eq] || EQUIPOS[0]).c}"><span>${m.avatar}</span><p><b>${esc(m.nombre)}</b>${esc(m.texto)}</p></div>`).join('')
+    : '<p class="vacio-chat">Aquí salen los mensajes del salón 💬</p>';
+  const chatHTML = () => chatOn ? `<div class="chat-cel">
+      <div class="chat-feed" id="chat-feed">${feedHTML()}</div>
+      <div class="frases">${FRASES.map(f => `<button type="button" class="frase">${f}</button>`).join('')}</div>
+      <form class="chat-form" id="chat-form"><input id="chat-txt" maxlength="60" placeholder="Escríbele al salón…" autocomplete="off" enterkeyhint="send"><button class="btn" id="chat-env">Enviar</button></form>
+    </div>` : '';
+  function enviarChat(texto) {
+    texto = limpiarChat(texto);
+    const ahora = Date.now();
+    if (!texto || !conn || !conn.open) return;
+    if (ahora - ultChat < 3000) { const b = $('#chat-env'); if (b) { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); } return; }
+    ultChat = ahora;
+    conn.send({ t: 'chat', texto });
+    vibrar(15);
+    const inp = $('#chat-txt'); if (inp) inp.value = '';
+    const b = $('#chat-env');
+    if (b) { b.disabled = true; let s = 3; b.textContent = s + ' s'; const tic = setInterval(() => { s--; if (s <= 0 || !document.body.contains(b)) { clearInterval(tic); b.disabled = false; b.textContent = 'Enviar'; } else b.textContent = s + ' s'; }, 1000); }
+  }
+
   function pantalla(html, reacciones) {
     const eq = EQUIPOS[yo.equipo];
+    // Lo que alguien estaba escribiendo en el chat no se pierde cuando cambia la pantalla.
+    const escrito = $('#chat-txt') ? $('#chat-txt').value : '', escribiendo = document.activeElement && document.activeElement.id === 'chat-txt';
     // Si es la misma clase de pantalla que la anterior (un toque dentro de un juego), no se repite la animación de entrada.
     const tipo = html.slice(0, 40), quieto = tipo === ultimaPantalla;
     ultimaPantalla = tipo;
     app.innerHTML = `<div class="cel${quieto ? ' quieto' : ''}">${eq ? `<div class="mi-eq" style="--c:${eq.c}">${eq.ic} Equipo ${eq.n} <span>${yo.avatar} ${esc(yo.nombre)} · ${yo.puntos} pts</span></div>` : ''}${html}
-      ${reacciones ? `<div class="reac">${REACCIONES.map(e => `<button data-e="${e}" aria-label="Reaccionar ${e}">${e}</button>`).join('')}</div>` : ''}</div>`;
+      ${reacciones ? `<div class="reac">${REACCIONES.map(e => `<button data-e="${e}" aria-label="Reaccionar ${e}">${e}</button>`).join('')}</div>${chatHTML()}` : ''}</div>`;
+    const inp = $('#chat-txt');
+    if (inp) { inp.value = escrito; if (escribiendo) inp.focus(); }
+    const form = $('#chat-form');
+    if (form) form.onsubmit = e => { e.preventDefault(); enviarChat($('#chat-txt').value); };
+    app.querySelectorAll('.frase').forEach(b => b.onclick = () => enviarChat(b.textContent));
     app.querySelectorAll('.reac button').forEach(b => b.onclick = () => {
       const ahora = Date.now();
       if (ahora - ultReac < 1200 || !conn || !conn.open) return;
@@ -725,7 +804,18 @@ function jugador(codigo) {
 
   function recibir(d) {
     if (!d || typeof d !== 'object') return;
+    if (d.t === 'chat') {
+      feed.push(d); while (feed.length > 4) feed.shift();
+      const f = $('#chat-feed'); if (f) f.innerHTML = feedHTML();   // solo se actualiza la lista, no toda la pantalla
+      return;
+    }
+    if (d.t === 'chat-estado') {
+      chatOn = !!d.on;
+      const c = $('.chat-cel'); if (c) c.hidden = !chatOn;
+      return;
+    }
     if (d.t === 'bienvenido') {
+      if (d.chat === false) chatOn = false; else if (d.chat === true) chatOn = true;
       const primera = !dentro;
       dentro = true; clearTimeout(espera);
       if (d.avatar) yo.avatar = d.avatar;

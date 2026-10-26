@@ -377,3 +377,31 @@ a { color: var(--oro); }
 .paso.ahora i { background: var(--oro); color: var(--tinta); animation: respira 1.2s ease-in-out infinite; }
 .msj-error { color: #FFB3B5 !important; font-weight: 800; background: rgba(229,72,77,.12); border: 2px solid rgba(229,72,77,.4); border-radius: 14px; padding: 10px 12px; }
 @media (prefers-reduced-motion: reduce) { .carga::before, .carga span, .paso.ahora i { animation: none; } }
+
+/* ---------- chat del salón ---------- */
+#chat-proy { position: fixed; right: 18px; bottom: 86px; width: min(380px, 34vw); display: grid; gap: 8px; z-index: 55; pointer-events: none; }
+.burbuja { display: flex; gap: 10px; align-items: flex-start; background: var(--papel); color: var(--tinta); border: 3px solid var(--tinta); border-left: 8px solid var(--c); border-radius: 16px; padding: 8px 12px; font-weight: 800; font-size: 1.05rem; line-height: 1.25; box-shadow: 0 6px 0 rgba(0,0,0,.25); animation: burbuja .5s var(--resorte, ease-out) both; }
+.burbuja .av { font-size: 1.6rem; line-height: 1; }
+.burbuja b { display: block; color: var(--c); font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+.burbuja.sale { transition: opacity .35s, transform .35s; opacity: 0; transform: translateX(30px); }
+@keyframes burbuja { from { opacity: 0; transform: translateX(40px) scale(.9); filter: blur(4px); } }
+#chat-ind { position: fixed; left: 18px; bottom: 12px; z-index: 55; font: 800 .8rem 'Nunito'; padding: 4px 12px; border-radius: 999px; background: rgba(255,255,255,.08); border: 1.5px solid var(--linea); color: var(--suave); pointer-events: none; }
+#chat-ind.off { color: #FFB3B5; }
+.chat-cel { display: grid; gap: 8px; margin-top: 4px; text-align: left; }
+.chat-feed { display: grid; gap: 6px; background: rgba(0,0,0,.18); border: 2px solid var(--linea); border-radius: 16px; padding: 8px; min-height: 64px; }
+.chat-feed .msg { display: flex; gap: 8px; align-items: flex-start; animation: entra .35s var(--sale, ease-out) both; }
+.chat-feed .msg > span { font-size: 1.3rem; line-height: 1; }
+.chat-feed .msg p { margin: 0 !important; color: var(--papel) !important; font-size: .95rem !important; font-weight: 700; background: rgba(255,255,255,.06); border-left: 4px solid var(--c); border-radius: 10px; padding: 5px 9px; }
+.chat-feed .msg p b { display: block; color: var(--c); font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; filter: brightness(1.4); }
+.chat-feed .msg.mio p { background: rgba(255,194,61,.14); }
+.vacio-chat { margin: 6px 0 !important; text-align: center; font-size: .9rem !important; }
+.frases { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.frases::-webkit-scrollbar { display: none; }
+.frase { flex: none; font: 800 .9rem 'Nunito'; background: rgba(255,255,255,.08); color: var(--papel); border: 2px solid var(--linea); border-radius: 999px; padding: 7px 12px; }
+.frase:active { transform: scale(.96); background: rgba(255,194,61,.2); }
+.chat-form { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.chat-form input { font: 800 1rem 'Nunito'; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--tinta); background: var(--papel); color: var(--tinta); min-width: 0; }
+.chat-form .btn { font-size: 1rem; padding: 10px 16px; }
+.reac { grid-template-columns: repeat(4, 1fr); }
+.reac button { font-size: 1.9rem; padding: 8px 0; }
+@media (prefers-reduced-motion: reduce) { .burbuja, .chat-feed .msg { animation: none; } }

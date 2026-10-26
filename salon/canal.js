@@ -13,6 +13,7 @@ const CANAL_SERVIDOR = 'wss://broker.hivemq.com:8884/mqtt';
 const CANAL_RAIZ = 'arbolvivo/v2/';
 const buzon = id => CANAL_RAIZ + id + '/in';     // donde cada uno recibe sus mensajes
 const vivo = id => CANAL_RAIZ + id + '/vivo';    // la sala avisa aquí que está abierta ("1") o cerrada ("")
+const todos = id => CANAL_RAIZ + id + '/todos';  // mensajes de la sala para todos los celulares a la vez (el chat)
 
 class Emisor {
   constructor() { this._ev = {}; }
@@ -98,8 +99,20 @@ class CanalPeer extends Emisor {
   }
   _olvidar(c) { if (this.conns.get(c.peer) === c) this.conns.delete(c.peer); }
 
+  // La sala manda un mensaje a todos los celulares con una sola publicación (no uno por uno).
+  difundir(m) {
+    if (this.esSala && this.cliente.connected) this.cliente.publish(todos(this.id), JSON.stringify({ m }), { qos: 1 });
+  }
+
   _mensaje(tema, datos) {
     const texto = String(datos);
+    // Un celular recibe lo que la sala manda a todos.
+    if (!this.esSala && this.sala && tema === todos(this.sala)) {
+      const c = this.conns.get(this.sala);
+      let d; try { d = JSON.parse(texto); } catch (e) { return; }
+      if (c && c.open && d) c.emit('data', d.m);
+      return;
+    }
     // Un celular vigila si su sala sigue abierta.
     if (!this.esSala && this.sala && tema === vivo(this.sala)) {
       const c = this.conns.get(this.sala);
@@ -133,6 +146,7 @@ class CanalPeer extends Emisor {
     const c = new CanalConexion(this, otro);
     this.conns.set(otro, c);
     // Primero se mira si la sala existe (su "vivo"). Si en 5 s no aparece, no hay sala con ese código.
+    this.cliente.subscribe(todos(otro), { qos: 1 });
     this.cliente.subscribe(vivo(otro), { qos: 1 }, () => {
       c.espera = setTimeout(() => { if (!c.open && !c.cerrada && !c.pedida) { this._olvidar(c); this.emit('error', { type: 'peer-unavailable' }); } }, 5000);
     });
