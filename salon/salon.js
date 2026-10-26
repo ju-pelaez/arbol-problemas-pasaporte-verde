@@ -12,6 +12,10 @@ const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
 const app = $('#app');
 const params = new URLSearchParams(location.search);
 const PREFIJO = 'arbolvivo-salon-';
+// El QR siempre lleva a la página publicada. Si la sala se abre desde este computador (localhost o un
+// archivo), el celular no podría abrir esa dirección: "Safari no puede abrir la página".
+const PUBLICO = 'https://arbol-problemas-pasaporte-verde.vercel.app/salon/';
+const ES_LOCAL = location.protocol !== 'https:' || /^(localhost|127\.|10\.|192\.168\.|\[::1\])/.test(location.hostname);
 const TIEMPO = 20;                                            // segundos por reto
 const COLORES = ['#E2533D', '#2B7BB9', '#C99300', '#1E8C4E']; // colores de las respuestas
 const COLOR_COMP = ['#1E8C4E', '#2B7BB9', '#D0661C', '#C99300']; // actores, datos, procesos, control
@@ -131,6 +135,8 @@ function inicio() {
     </div>
     <p style="margin-top:14px"><a href="../">← Volver al juego</a></p>
   </div>`;
+  // Abierto desde este computador: se avisa que para la clase se usa la página web.
+  if (ES_LOCAL) app.querySelector('.inicio').insertAdjacentHTML('afterbegin', `<div class="aviso-local">⚠️ Estás en una copia de tu computador. Para la clase usa la página web: <a href="${PUBLICO}">${PUBLICO.replace('https://', '')}</a></div>`);
   $('#abrir').onclick = () => { sonar('tic'); anfitrion(); };
   $('#unirme').onclick = () => { sonar('tic'); pedirCodigo(); };
 }
@@ -281,13 +287,14 @@ function anfitrion() {
 
   function pintarSala(aviso) {
     estado = 'sala';
-    const url = location.origin + location.pathname + '?sala=' + codigo;
+    const base = ES_LOCAL ? PUBLICO : location.origin + location.pathname.replace(/index\.html$/, '');
+    const url = base + '?sala=' + codigo;
     const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
     app.innerHTML = `<div class="proy">
       <div class="cab"><div class="titulo"><small>ÁRBOL DE PROBLEMAS</small>Reto del salón</div><span class="pill grande-pill" id="njug"></span><a class="pill" href="../">← Juego</a></div>
       <div class="sala">
         <div class="qr">${qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true })}
-          <div>Código de la sala</div><div class="cod">${codigo}</div><div class="url">${esc(location.host + location.pathname)}</div>
+          <div>Código de la sala</div><div class="cod">${codigo}</div><div class="url">${esc(base.replace(/^https?:\/\//, ''))}</div>
           <div class="estado ${conectado ? 'ok' : 'mal'}">${aviso ? esc(aviso) : conectado ? '✓ Sala lista: escaneen el QR' : 'Conectando…'}</div></div>
         <div class="lobby">
           <h2>¡Construyamos el árbol entre todos!</h2>

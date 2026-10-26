@@ -356,3 +356,7 @@ a { color: var(--oro); }
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; animation-delay: 0ms !important; transition-duration: .01ms !important; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+
+/* aviso cuando la sala se abre desde una copia local */
+.aviso-local { background: #FFF1C9; color: var(--tinta); border: 3px solid var(--tinta); border-radius: 14px; padding: 10px 14px; font-weight: 800; max-width: 720px; margin: 0 auto 6px; }
+.aviso-local a { color: #8A5A00; word-break: break-all; }
