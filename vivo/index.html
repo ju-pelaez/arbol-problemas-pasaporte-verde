@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sistema Vivo · El viaje del lote</title>
+<meta name="description" content="Un juego para entender cómo nace un árbol de problemas: sigue un lote de cacao del Caquetá y descubre dónde falla el sistema.">
+<meta name="author" content="Juan Pablo Peláez Pino">
+<meta name="theme-color" content="#0B1F1A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
+<link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+<!-- Todo el juego vive dentro de este escenario de 1600x900.
+     juego.js lo escala para que quepa en cualquier pantalla. -->
+<div id="escenario">
+
+  <header class="barra">
+    <button class="marca" id="marca" title="Volver al inicio">
+      <span class="logo">🌳</span>
+      <span><b>Sistema Vivo</b><small>El viaje del lote</small></span>
+    </button>
+    <ol id="pasos" aria-label="Fases de la partida"></ol>
+    <div class="controles">
+      <button id="bGlosario" title="Conceptos clave (G)" aria-label="Conceptos clave">📖</button>
+      <button id="bVoz" title="Voz que lee todo (V)" aria-label="Voz">🗣️</button>
+      <button id="bSonido" title="Sonido (M)" aria-label="Sonido">🔊</button>
+      <button id="bMovimiento" title="Animaciones (R)" aria-label="Animaciones">🎞️</button>
+      <button id="bPantalla" title="Pantalla completa (F)" aria-label="Pantalla completa">⛶</button>
+      <button id="bAyuda" title="Atajos de teclado (H)" aria-label="Atajos de teclado">?</button>
+    </div>
+  </header>
+  <div id="progreso" aria-hidden="true"><i></i></div>
+
+  <div id="objetivo" hidden></div>
+  <main id="lienzo"></main>
+
+  <footer class="narrador">
+    <div class="avatar" aria-hidden="true">
+      <!-- Don Arley: personaje inventado para el juego -->
+      <svg viewBox="0 0 80 80">
+        <circle cx="40" cy="40" r="38" fill="#1F4A3A"/>
+        <ellipse cx="40" cy="27" rx="30" ry="7" fill="#D9B46A" stroke="#13201A" stroke-width="2.5"/>
+        <path d="M24 27 Q26 8 40 8 Q54 8 56 27Z" fill="#E8C77E" stroke="#13201A" stroke-width="2.5"/>
+        <path d="M25 22 H55" stroke="#8A5A2B" stroke-width="3"/>
+        <ellipse cx="40" cy="45" rx="15" ry="17" fill="#B9825A" stroke="#13201A" stroke-width="2.5"/>
+        <circle cx="34" cy="43" r="2.2" fill="#13201A"/><circle cx="46" cy="43" r="2.2" fill="#13201A"/>
+        <path d="M33 52 Q40 56 47 52" fill="none" stroke="#13201A" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M30 50 Q40 47 50 50" fill="none" stroke="#3A2A1E" stroke-width="3" stroke-linecap="round"/>
+        <path d="M20 80 Q22 64 40 63 Q58 64 60 80Z" fill="#E9EFE9" stroke="#13201A" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <div class="dialogo">
+      <span class="quien" id="quien">Don Arley</span>
+      <p id="dialogo" aria-live="polite"></p>
+    </div>
+    <button class="btn principal" id="siguiente" hidden></button>
+  </footer>
+
+  <aside id="notas" hidden>
+    <b>📝 Lo que digo aquí</b>
+    <p id="notasTexto"></p>
+  </aside>
+
+  <aside id="glosario" hidden>
+    <div class="cab"><b>📖 Conceptos clave</b><button id="cerrarGlosario" aria-label="Cerrar">✕</button></div>
+    <dl id="glosarioLista"></dl>
+  </aside>
+
+  <div id="ayuda" hidden>
+    <div class="tarjeta">
+      <h2>Atajos de teclado</h2>
+      <dl>
+        <dt>→ o Espacio</dt><dd>Siguiente</dd>
+        <dt>1 2 3 4 5</dt><dd>Elegir una opción</dd>
+        <dt>G</dt><dd>Conceptos clave (glosario)</dd>
+        <dt>V</dt><dd>Voz que lee todo sí / no</dd>
+        <dt>M</dt><dd>Sonido sí / no</dd>
+        <dt>R</dt><dd>Animaciones completas / reducidas</dd>
+        <dt>F</dt><dd>Pantalla completa</dd>
+        <dt>B</dt><dd>Pantalla negra</dd>
+        <dt>H</dt><dd>Esta ayuda</dd>
+      </dl>
+      <button class="btn" id="cerrarAyuda">Entendido</button>
+    </div>
+  </div>
+</div>
+
+<div id="negro" hidden></div>
+
+<!-- Orden de carga: primero los datos, después las herramientas, después cada fase y al final el motor. -->
+<script src="js/datos.js"></script>
+<script src="js/util.js"></script>
+<script src="js/sonido.js"></script>
+<script src="js/ruta.js"></script>
+<script src="js/fases/0-portada.js"></script>
+<script src="js/fases/1-descubrir.js"></script>
+<script src="js/fases/2-experimentar.js"></script>
+<script src="js/fases/3-observar.js"></script>
+<script src="js/fases/4-comprender.js"></script>
+<script src="js/fases/5-aplicar.js"></script>
+<script src="js/fases/6-demostrar.js"></script>
+<script src="js/fases/7-final.js"></script>
+<script src="js/juego.js"></script>
+</body>
+</html>
