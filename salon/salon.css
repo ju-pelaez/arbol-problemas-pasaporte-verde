@@ -360,3 +360,20 @@ a { color: var(--oro); }
 /* aviso cuando la sala se abre desde una copia local */
 .aviso-local { background: #FFF1C9; color: var(--tinta); border: 3px solid var(--tinta); border-radius: 14px; padding: 10px 14px; font-weight: 800; max-width: 720px; margin: 0 auto 6px; }
 .aviso-local a { color: #8A5A00; word-break: break-all; }
+
+/* celular: pantalla de espera al entrar */
+.carga-cel { align-content: center; min-height: 92vh; }
+.carga { width: 132px; height: 132px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; position: relative; }
+.carga::before { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 6px solid rgba(255,255,255,.12); border-top-color: var(--oro); animation: gira 1s linear infinite; }
+.carga span { font-size: 4rem; animation: respira 1.6s ease-in-out infinite; }
+@keyframes gira { to { transform: rotate(360deg); } }
+@keyframes respira { 50% { transform: scale(1.1); } }
+.pasos-carga { display: grid; gap: 10px; text-align: left; max-width: 320px; width: 100%; margin: 6px auto 0; }
+.paso { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 16px; background: rgba(255,255,255,.06); border: 2px solid var(--linea); color: var(--suave); font-weight: 800; transition: all .3s var(--sale, ease-out); }
+.paso i { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 900; background: rgba(255,255,255,.1); flex: none; }
+.paso.ok { color: var(--papel); border-color: rgba(47,191,113,.5); }
+.paso.ok i { background: var(--bien); color: #fff; }
+.paso.ahora { color: var(--papel); border-color: var(--oro); background: rgba(255,194,61,.1); }
+.paso.ahora i { background: var(--oro); color: var(--tinta); animation: respira 1.2s ease-in-out infinite; }
+.msj-error { color: #FFB3B5 !important; font-weight: 800; background: rgba(229,72,77,.12); border: 2px solid rgba(229,72,77,.4); border-radius: 14px; padding: 10px 12px; }
+@media (prefers-reduced-motion: reduce) { .carga::before, .carga span, .paso.ahora i { animation: none; } }

@@ -11,16 +11,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap">
-<link rel="stylesheet" href="salon.css?v=8">
+<link rel="stylesheet" href="salon.css?v=12">
 </head>
 <body>
 <div id="app"></div>
 
-<!-- PeerJS: conecta los celulares con el proyector directamente (WebRTC), sin servidor propio.
+<!-- mqtt.js: conecta el proyector y los celulares por un servidor público de mensajes (funciona en cualquier red).
      qrcode-generator: dibuja el código QR para entrar a la sala. -->
-<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.14.1/dist/mqtt.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-<script src="retos.js?v=8"></script>
-<script src="salon.js?v=8"></script>
+<script src="canal.js?v=12"></script>
+<script src="retos.js?v=12"></script>
+<script src="salon.js?v=12"></script>
 </body>
 </html>

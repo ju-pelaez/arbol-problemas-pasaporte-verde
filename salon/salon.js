@@ -2,8 +2,9 @@
 // Reto del salón: el proyector es la "sala" y cada celular es un control.
 //   - Sin parámetros:      pantalla de inicio (abrir sala o unirme).
 //   - ?sala=CODIGO:        el celular de un jugador.
-// Conexión: PeerJS (WebRTC). El proyector crea un "peer" con un nombre fijo (arbolvivo-salon-CODIGO)
-// y los celulares se conectan a ese nombre. Los mensajes son objetos pequeños: {t:'hola'}, {t:'resp'}…
+// Conexión: canal.js. El proyector abre una sala con un nombre fijo (arbolvivo-salon-CODIGO) en un
+// servidor público de mensajes, y los celulares entran a ese nombre. Funciona en cualquier red.
+// Los mensajes son objetos pequeños: {t:'hola'}, {t:'resp'}…
 // Está pensado para un salón entero (20, 30, 50 personas): cada jugador tiene un id que se guarda
 // en su celular, así que si se le bloquea la pantalla o se le cae el internet vuelve con sus puntos.
 
@@ -29,10 +30,6 @@ const EQUIPOS = [
   { n: 'Control',  ic: '🎯', c: '#C99300' },
 ];
 const REACCIONES = ['🔥', '👏', '🌳', '😮'];
-// Servidores STUN: le ayudan a cada celular a encontrar su dirección pública para conectarse.
-const ICE = { config: { iceServers: [
-  { urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, { urls: 'stun:stun.cloudflare.com:3478' },
-] } };
 
 const colorDe = (reto, i) => (reto.tipo === 'falla' ? COLOR_COMP : COLORES)[i];
 const segs = ms => (ms / 1000).toFixed(1).replace('.', ',') + ' s';
@@ -203,7 +200,7 @@ function anfitrion() {
   const bienvenida = j => ({ t: 'bienvenido', nombre: j.nombre, avatar: j.avatar, equipo: j.equipo, puntos: j.puntos });
 
   function abrirPeer() {
-    peer = new Peer(PREFIJO + codigo, ICE);
+    peer = new CanalPeer(PREFIJO + codigo);
     peer.on('open', () => { conectado = true; if (estado === 'sala') pintarSala(); });
     // Si se cae el enlace con el servidor de PeerJS, los que ya entraron siguen jugando; solo hay que reconectar para recibir nuevos.
     peer.on('disconnected', () => { setTimeout(() => { try { if (!peer.destroyed) peer.reconnect(); } catch (e) { /* lo intenta el próximo */ } }, 1500); });
@@ -635,14 +632,22 @@ function jugador(codigo) {
     app.innerHTML = `<div class="cel">
       <div class="avatar">🌳</div><h1>Reto del salón</h1><p>Sala <b>${esc(codigo)}</b>. ¿Cómo te llamas?</p>
       <input id="nombre" maxlength="14" autocomplete="off" placeholder="Tu nombre" value="${esc(yo.nombre)}">
-      <button class="btn" id="entrar">Entrar →</button><p id="msj">${msj ? esc(msj) : 'Vas a quedar en un equipo: Actores, Datos, Procesos o Control.'}</p></div>`;
+      <button class="btn" id="entrar">Entrar →</button><p id="msj" class="${msj ? 'msj-error' : ''}">${msj ? esc(msj) : 'Vas a quedar en un equipo: Actores, Datos, Procesos o Control.'}</p></div>`;
     const entrar = () => {
       const n = $('#nombre').value.trim();
       if (!n) { $('#nombre').focus(); return; }
       yo.nombre = n.slice(0, 14);
       guardar();
-      $('#entrar').disabled = true;
-      $('#msj').textContent = 'Conectando…';
+      // Pantalla de espera con 3 pasos que se van marcando: así nadie siente que se quedó pegado.
+      app.innerHTML = `<div class="cel carga-cel">
+        <div class="carga"><span>🌳</span></div>
+        <h1>¡Hola, ${esc(yo.nombre)}!</h1>
+        <div class="pasos-carga">
+          <div class="paso ok"><i>✓</i>Tu nombre</div>
+          <div class="paso ahora" id="p2"><i>2</i>Conectando con el servidor</div>
+          <div class="paso" id="p3"><i>3</i>Entrando a la sala ${esc(codigo)}</div>
+        </div>
+        <p id="msj">Esto tarda unos segundos…</p></div>`;
       intentos = 0;
       conectar();
     };
@@ -654,13 +659,19 @@ function jugador(codigo) {
   function conectar() {
     clearTimeout(reintento);
     clearTimeout(espera);
-    // Si en 12 s no entra la primera vez, se avisa (sala equivocada o sin internet).
-    if (!dentro) espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet, y vuelve a intentar.'); }, 12000);
+    // Si en 25 s no entra la primera vez, se avisa (sala equivocada o sin internet).
+    if (!dentro) espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 25000);
     if (peer && !peer.destroyed && peer.open) return abrirConexion();
     if (peer && !peer.destroyed && peer.disconnected) { try { peer.reconnect(); } catch (e) { /* abajo se crea otro */ } return; }
     if (peer && !peer.destroyed) return;   // todavía abriendo
-    peer = new Peer(ICE);
-    peer.on('open', abrirConexion);
+    peer = new CanalPeer(null, PREFIJO + codigo);
+    peer.on('open', () => {
+      const p2 = $('#p2'), p3 = $('#p3');
+      if (p2) { p2.className = 'paso ok'; p2.querySelector('i').textContent = '✓'; }
+      if (p3) p3.className = 'paso ahora';
+      aviso('Casi listo…');
+      abrirConexion();
+    });
     peer.on('disconnected', () => { if (!peer.destroyed) reintentar(); });
     peer.on('error', e => {
       if (e.type === 'peer-unavailable' && !dentro) { clearTimeout(espera); return pedirNombre(`No encontramos la sala ${codigo}. Revisa el código del proyector.`); }
@@ -669,13 +680,25 @@ function jugador(codigo) {
     });
   }
 
+  // Mensaje debajo del botón mientras entra.
+  const aviso = texto => { const m = $('#msj'); if (m) m.textContent = texto; };
+  let caminos = 0;
+
   function abrirConexion() {
     if (conn && conn.open) return;
+    if (conn) { try { conn.close(); } catch (e) { /* ya estaba cerrada */ } }
     const c = conn = peer.connect(PREFIJO + codigo, { reliable: true });
     c.on('open', () => { intentos = 0; c.send({ t: 'hola', nombre: yo.nombre, pid: yo.pid }); });
     c.on('data', recibir);
     c.on('close', () => { if (c === conn) perdida(); });
     c.on('error', () => { if (c === conn) perdida(); });
+    // Al entrar, si en 8 s la conexión no abrió, se prueba otra vez (a veces el primer camino no sirve).
+    if (!dentro) setTimeout(() => {
+      if (dentro || c !== conn || c.open || caminos >= 2) return;
+      caminos++;
+      aviso('Buscando otro camino para conectar…');
+      abrirConexion();
+    }, 8000);
   }
 
   function perdida() {
@@ -830,7 +853,7 @@ function jugador(codigo) {
   }
 
   if (yo.nombre && guardado.pid) {   // ya había entrado a esta sala: vuelve directo
-    app.innerHTML = `<div class="cel"><div class="grande">🌳</div><h1>Volviendo a la sala…</h1><p>Hola de nuevo, ${esc(yo.nombre)}.</p></div>`;
+    app.innerHTML = `<div class="cel carga-cel"><div class="carga"><span>🌳</span></div><h1>Volviendo a la sala…</h1><p>Hola de nuevo, ${esc(yo.nombre)}. Vuelves con tus puntos.</p><p id="msj"></p></div>`;
     dentro = false;
     conectar();
   } else pedirNombre();
