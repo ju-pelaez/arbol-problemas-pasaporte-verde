@@ -658,6 +658,12 @@ function jugador(codigo) {
   const feed = [];   // los últimos mensajes del chat del salón
   const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify({ pid: yo.pid, nombre: yo.nombre })); } catch (e) { /* no pasa nada */ } };
   const vibrar = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { /* no pasa nada */ } };
+  // Mientras juega, la pantalla del celular no se apaga sola (si se bloquea, se puede desconectar).
+  let candado = null;
+  const mantenerPantalla = async () => {
+    try { if ('wakeLock' in navigator && document.visibilityState === 'visible' && !candado) { candado = await navigator.wakeLock.request('screen'); candado.addEventListener('release', () => { candado = null; }); } } catch (e) { /* el celular no lo permite: no pasa nada */ }
+  };
+  document.addEventListener('visibilitychange', mantenerPantalla);
 
   // Cada pantalla lleva arriba el equipo y, si se pide, la barra de reacciones abajo.
   let ultimaPantalla = '';
@@ -822,7 +828,7 @@ function jugador(codigo) {
       if (d.equipo >= 0) yo.equipo = d.equipo;
       yo.puntos = d.puntos || 0;
       if (d.vuelve) return;   // ya estaba jugando: el proyector manda enseguida la pantalla donde iba
-      if (primera) vibrar([30, 40, 30]);
+      if (primera) { vibrar([30, 40, 30]); mantenerPantalla(); }
       const eq = EQUIPOS[yo.equipo];
       pantalla(`<div class="avatar">${yo.avatar}</div><h1>¡Estás dentro, ${esc(yo.nombre)}!</h1>
         ${eq ? `<div class="tu-eq" style="--c:${eq.c}">${eq.ic} Eres del equipo <b>${eq.n}</b></div>` : ''}
