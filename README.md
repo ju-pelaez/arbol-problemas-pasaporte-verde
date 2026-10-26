@@ -35,7 +35,8 @@ La historia de **Don Arley** (personaje ficticio) y su lote de cacao rechazado e
 - Tipos de juego: escoger la parte del árbol, descubrir qué componente falla, **lluvia de fallas** (clasificar), **armar el problema central** (ordenar), **unir cada raíz con su efecto**, **cómo se lee el árbol** (ordenar).
 - Puntos: 500 × lo que acertó + hasta 500 por rapidez + 100 por cada acierto seguido.
 - Si a alguien se le cae la conexión o recarga la página, vuelve solo con su nombre y sus puntos.
-- Reacciones (🔥 👏 🌳 😮) que suben por el proyector, muro de jugadores, carrera de equipos, podio, premios y confeti.
+- Reacciones (🔥 👏 🌳 😮 😂 💚 🤯 🙌) que suben por el proyector, muro de jugadores, carrera de equipos, podio, premios y confeti.
+- **Chat del salón:** frases rápidas o mensajes cortos que salen en el proyector y en todos los celulares (se esconde durante cada reto, tapa groserías y se apaga con la tecla C).
 - Sin internet: botón **"Jugar sin celulares"** (el salón responde en voz alta).
 
 ## Cómo está hecho
