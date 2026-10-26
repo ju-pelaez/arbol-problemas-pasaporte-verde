@@ -1235,7 +1235,7 @@ RUN.enlazar=(host,st,ctx,done)=>{
       if(!arrastra&&Math.hypot(e.clientX-sx,e.clientY-sy)>6){arrastra=true;h=hilo('tirando');t.classList.add('sel')}
       if(arrastra){const c=caja.getBoundingClientRect();h.setAttribute('d',curva(pt(t,'der'),{x:e.clientX-c.left,y:e.clientY-c.top}));
         const el=document.elementFromPoint(e.clientX,e.clientY),so=el&&el.closest('.socket');$$('.socket',host).forEach(x=>x.classList.toggle('over',x===so))}});
-    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;$$('.socket',host).forEach(x=>x.classList.remove('over'));
+    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;desplazaAlArrastrar.parar();$$('.socket',host).forEach(x=>x.classList.remove('over'));
       if(arrastra){t.classList.remove('sel');h.classList.remove('tirando');const el=document.elementFromPoint(e.clientX,e.clientY),so=el&&el.closest('.socket');
         if(so)juzgar(+t.dataset.i,so,h);else{h.classList.add('suelta');const hh=h;setTimeout(()=>hh.remove(),250)}h=null}
       else{$$('.ecarta',izq).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su grupo 👉','')}});
@@ -1289,11 +1289,11 @@ RUN.armar=(host,st,ctx,done)=>{
     let sx=null,sy=0,drag=false,gh=null;
     t.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;drag=false;try{t.setPointerCapture(e.pointerId)}catch(_){}});
     t.addEventListener('pointermove',e=>{if(sx==null)return;if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)>8){drag=true;gh=t.cloneNode(true);gh.classList.add('ghost','sel');document.body.appendChild(gh)}
-      if(drag){gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';const z=zoneAt(e.clientX,e.clientY);$$('.zone',host).forEach(x=>x.classList.toggle('over',x===z))}});
-    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;
+      if(drag){gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';desplazaAlArrastrar.mover(e.clientY);const z=zoneAt(e.clientX,e.clientY);$$('.zone',host).forEach(x=>x.classList.toggle('over',x===z))}});
+    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;desplazaAlArrastrar.parar();
       if(drag){gh.remove();gh=null;$$('.zone',host).forEach(x=>x.classList.remove('over'));const z=zoneAt(e.clientX,e.clientY);if(z)place(+t.dataset.i,z)}
-      else{$$('.tray .tile',host).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su lugar en el árbol 👆','')}});
-    t.addEventListener('pointercancel',()=>{sx=null;if(gh){gh.remove();gh=null}});
+      else{$$('.tray .tile',host).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su lugar en el árbol 👆','');const tb=$('.build',host);if(tb&&tb.getBoundingClientRect().top<0)tb.scrollIntoView({behavior:'smooth',block:'start'})}});
+    t.addEventListener('pointercancel',()=>{sx=null;desplazaAlArrastrar.parar();if(gh){gh.remove();gh=null}});
   }
   function tray(){const tr=$('#tray',host);sel=null;const vis=queue.slice(0,3);
     tr.innerHTML=vis.length?vis.map((c,i)=>`<button class="tile" data-i="${i}">${c.t}</button>`).join(''):'<p class="center" style="margin:0">¡No quedan piezas! 🎉</p>';
@@ -1708,6 +1708,12 @@ RUN.speed=(host,st,ctx,done)=>{
   nq();
 };
 
+/* Al arrastrar una tarjeta cerca del borde de arriba o de abajo, la página se desplaza sola.
+   En el celular las partes de arriba del árbol (la copa) quedan fuera de la pantalla y sin esto no se alcanzan. */
+const desplazaAlArrastrar=(()=>{let y=null,raf=0;
+  const paso=()=>{raf=0;if(y==null)return;const b=110,v=y<b?-(b-y)/4:y>innerHeight-b?(y-(innerHeight-b))/4:0;if(v){scrollBy(0,v);raf=requestAnimationFrame(paso)}};
+  return {mover(cy){y=cy;if(!raf)raf=requestAnimationFrame(paso)},parar(){y=null}}})();
+
 /* ---------- minijuego: construye el árbol (arrastrar) ---------- */
 RUN.build=(host,st,ctx,done)=>{
   const queue=shuffle([...Object.entries(CAUSAS).flatMap(([k,a])=>a.map(t=>({t,z:'c-'+k}))),...Object.entries(EFD).map(([k,t])=>({t,z:'d-'+k})),...EFI.map(t=>({t,z:'i'})),{t:EFF,z:'f'}]);
@@ -1740,11 +1746,11 @@ RUN.build=(host,st,ctx,done)=>{
     let sx=null,sy=0,drag=false,gh=null;
     t.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;drag=false;try{t.setPointerCapture(e.pointerId)}catch(_){}});
     t.addEventListener('pointermove',e=>{if(sx==null)return;if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)>8){drag=true;gh=t.cloneNode(true);gh.classList.add('ghost','sel');document.body.appendChild(gh)}
-      if(drag){gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';const z=zoneAt(e.clientX,e.clientY);$$('.zone',host).forEach(x=>x.classList.toggle('over',x===z))}});
-    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;
+      if(drag){gh.style.left=e.clientX+'px';gh.style.top=e.clientY+'px';desplazaAlArrastrar.mover(e.clientY);const z=zoneAt(e.clientX,e.clientY);$$('.zone',host).forEach(x=>x.classList.toggle('over',x===z))}});
+    t.addEventListener('pointerup',e=>{if(sx==null)return;sx=null;desplazaAlArrastrar.parar();
       if(drag){gh.remove();gh=null;$$('.zone',host).forEach(x=>x.classList.remove('over'));const z=zoneAt(e.clientX,e.clientY);if(z)place(+t.dataset.i,z)}
-      else{$$('.tray .tile',host).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su lugar en el árbol 👆','')}});
-    t.addEventListener('pointercancel',()=>{sx=null;if(gh){gh.remove();gh=null}});
+      else{$$('.tray .tile',host).forEach(x=>x.classList.remove('sel'));t.classList.add('sel');sel=+t.dataset.i;tone('tap');say('Ahora toca su lugar en el árbol 👆','');const tb=$('.build',host);if(tb&&tb.getBoundingClientRect().top<0)tb.scrollIntoView({behavior:'smooth',block:'start'})}});
+    t.addEventListener('pointercancel',()=>{sx=null;desplazaAlArrastrar.parar();if(gh){gh.remove();gh=null}});
   }
   function tray(){const tr=$('#tray',host);sel=null;const vis=queue.slice(0,3);
     tr.innerHTML=vis.length?vis.map((c,i)=>`<button class="tile" data-i="${i}">${c.t}</button>`).join(''):'<p class="center" style="margin:0">¡No quedan piezas! 🎉</p>';
