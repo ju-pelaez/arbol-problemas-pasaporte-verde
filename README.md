@@ -45,7 +45,7 @@ HTML, CSS y JavaScript sin frameworks.
 - **Canvas 2D** para el mundo y los minijuegos de movimiento (ciclo con `requestAnimationFrame`).
 - **SVG** para los árboles, las raíces que se dibujan y las chispas.
 - **Web Speech API** para la voz que lee; **Web Audio API** para los sonidos (sin archivos de audio).
-- **PeerJS (WebRTC)** para conectar los celulares con el proyector, y **qrcode-generator** para el QR.
+- **MQTT por WebSocket seguro** (mqtt.js y el servidor público de HiveMQ) para conectar los celulares con el proyector en cualquier red, y **qrcode-generator** para el QR. La conexión está en `salon/canal.js`.
 - **View Transitions API** para los cambios de pantalla del proyector.
 - Publicado en **Vercel** como sitio estático.
 
