@@ -49,13 +49,20 @@ HTML, CSS y JavaScript sin frameworks.
 - **View Transitions API** para los cambios de pantalla del proyector.
 - Publicado en **Vercel** como sitio estático.
 
-## Correrlo en el computador
+## Jugar
 
-```bash
-python -m http.server 5174
-```
+No hay que instalar nada, se juega desde el navegador:
 
-Luego abrir http://localhost:5174
+| | Enlace |
+|---|---|
+| 🌳 **La expedición** (jugar solo) | https://arbol-problemas-pasaporte-verde.vercel.app |
+| 🎉 **Reto del salón** (proyector + celulares) | https://arbol-problemas-pasaporte-verde.vercel.app/salon/ |
+
+Para el Reto del salón: en el computador del proyector se abre el segundo enlace y se toca **"Abrir la sala"**; los compañeros escanean el QR con el celular.
+
+### Para modificar el código
+
+Si se descarga el código para cambiarlo, se puede probar en el propio computador con un servidor local (`python -m http.server 5174` dentro de la carpeta y luego abrir `localhost:5174`).
 
 ## Licencia
 
