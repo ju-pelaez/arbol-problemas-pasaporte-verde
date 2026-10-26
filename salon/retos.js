@@ -75,17 +75,10 @@ function armarRetos() {
     falla('pro', 'r-pro'),
     falla('con', 'r-con'),
   ];
-  // Lluvia de fallas: 8 fallas (2 de cada componente) para clasificar lo más rápido posible.
-  const lluvia = barajar(COMPS.flatMap((c, k) => barajar(FALLAS_SALON[c.k].filter(t => !usadas.includes(t))).slice(0, 2).map(t => ({ t, k }))));
-  retos.push({ tipo: 'clasifica', titulo: 'Lluvia de fallas', texto: 'Clasifica cada falla en su componente: actores, datos, procesos o control.', items: lluvia.map(x => x.t), correctas: lluvia.map(x => x.k),
-    porque: 'Cada falla del viaje cae en una de las 4 preguntas del analista: ¿quién?, ¿qué información?, ¿qué se hace?, ¿cómo se controla?', pieza: null, tiempo: 45 });
-  retos.push(ordena('Arma el problema central', 'Ordena las 4 partes del problema central, como se escribe en el tronco.', ORDEN_PROBLEMA,
-    'Dónde pasa, a quién le pasa, qué le pasa y por qué: la causa de fondo es que el sistema no está articulado.', 'tronco'));
-  const der = barajar(EFECTOS_DIRECTOS);
-  retos.push({ tipo: 'une', titulo: 'Une cada raíz con su efecto', texto: 'Cada raíz sube por su columna hasta un efecto directo. Únelas.', izq: COMPS.map(c => c.ic + ' ' + c.t), der, correctas: EFECTOS_DIRECTOS.map(t => der.indexOf(t)),
-    porque: 'Cada componente que falla produce su propio efecto directo en la copa.', pieza: 'h1', tiempo: 35 });
-  retos.push(ordena('¿Cómo se lee el árbol?', 'Ordena de lo primero a lo último cuando se lee el árbol.', ORDEN_LECTURA,
-    'Se lee de abajo hacia arriba: por estas causas pasa este problema, que produce estos efectos.', 'h2'));
+  // Retos de escoger (funcionan en cualquier celular).
+  retos.push(parte('El pequeño productor no puede demostrar que su producción es legal y libre de deforestación.', 'tronco', 'Es el problema central: una sola situación negativa. Va en el tronco.', 'tronco'));
+  retos.push(parte('Don Arley pierde ventas o se las pagan más baratas.', 'copa', 'Es algo que produce el problema: un efecto. Va en la copa.', 'h1'));
+  retos.push(pregunta('¿Cómo se lee un árbol de problemas?', ['De abajo hacia arriba: causas → problema → efectos', 'De arriba hacia abajo: efectos → causas', 'De izquierda a derecha', 'En cualquier orden'], 0, 'Por estas causas pasa este problema, y eso produce estos efectos.', 'h2'));
   retos.push(pregunta('Si arreglamos solo los datos, ¿por qué el lote igual se cae?', ['Porque los datos no importan', 'Porque actores, procesos y control siguen fallando', 'Porque Europa no compra cacao', 'Porque el lote era muy pesado'], 1, 'El problema es del sistema completo: sus partes no están articuladas.', 'h3'));
   retos.push(pregunta('¿De dónde salen las raíces del árbol?', ['De las soluciones que queremos hacer', 'De lo que nos imaginamos', 'De observar dónde falla el sistema real', 'De internet'], 2, 'El árbol no se inventa: sale de analizar el sistema como funciona hoy.', 'fruto'));
   return retos;
@@ -97,11 +90,11 @@ const CAPITULOS_SALON = [
   { desde: 0, ic: '🏞️', t: 'El terreno', piezas: ['suelo'],
     txt: 'Todo árbol crece en un suelo. Antes de buscar causas, separemos lo que rodea al sistema de lo que pasa dentro de él.' },
   { desde: 1, ic: '🍫', t: 'El viaje de Don Arley', piezas: ['r-act', 'r-dat', 'r-pro', 'r-con'],
-    txt: 'El lote de cacao de Don Arley salió del Caquetá y lo rechazaron en Europa. Él no tumbó monte. Entonces, ¿dónde falló el sistema? Encuentren las 4 raíces… y aguanten la lluvia de fallas.' },
-  { desde: 6, ic: '🪵', t: 'El tronco', piezas: ['tronco'],
-    txt: 'Las 4 raíces llevan a un solo problema. Ármenlo pieza por pieza, como se escribe en el árbol.' },
-  { desde: 7, ic: '🍃', t: 'La copa', piezas: ['h1', 'h2', 'h3'],
-    txt: 'Un problema no se queda quieto: produce efectos. Unan cada raíz con su efecto y descubran cómo se lee el árbol.' },
-  { desde: 10, ic: '🍎', t: 'El fruto · Gran final', piezas: ['fruto'],
+    txt: 'El lote de cacao de Don Arley salió del Caquetá y lo rechazaron en Europa. Él no tumbó monte. Entonces, ¿dónde falló el sistema? Encuentren las 4 raíces.' },
+  { desde: 5, ic: '🪵', t: 'El tronco', piezas: ['tronco'],
+    txt: 'Las 4 raíces llevan a un solo problema. ¿Lo reconocen?' },
+  { desde: 6, ic: '🍃', t: 'La copa', piezas: ['h1', 'h2', 'h3'],
+    txt: 'Un problema no se queda quieto: produce efectos. Y el árbol se lee en un orden… ¿cuál será?' },
+  { desde: 9, ic: '🍎', t: 'El fruto · Gran final', piezas: ['fruto'],
     txt: 'La última pregunta es la más importante de la materia. ¡Vale puntos dobles!' },
 ];
