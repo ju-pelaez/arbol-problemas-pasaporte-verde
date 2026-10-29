@@ -16,6 +16,7 @@ El árbol analiza el sistema **como funciona hoy** (AS-IS), sin proponer solucio
 - **Problema central (tronco):** en el sistema de acreditación de origen del Caquetá, el pequeño productor no puede demostrar que su producción es legal y libre de deforestación, porque sus actores, datos, procesos y mecanismos de control no están articulados.
 - **Causas (raíces)**, ordenadas por las 4 preguntas del analista: **actores** (¿quién participa?), **datos** (¿qué información?), **procesos** (¿qué se hace?) y **control** (¿cómo se evalúa?).
 - **Efectos (copa)** y **entorno (suelo)**.
+- **Factibilidad y viabilidad** de la propuesta del Pasaporte Verde: técnica, operativa, económica y legal (¿se puede hacer?) y viabilidad (¿vale la pena y se sostiene?).
 - **Actores reales:** ICA, IDEAM, CORPOAMAZONIA, ANT, IGAC, Comité Departamental de Ganaderos del Caquetá, ASOHECA, Fedegán, Fedecacao, Unión Europea (Reglamento (UE) 2023/1115), entre otros.
 
 La historia de **Don Arley** (personaje ficticio) y su lote de cacao rechazado en Europa sirve para descubrir dónde falla el sistema.
@@ -24,7 +25,7 @@ La historia de **Don Arley** (personaje ficticio) y su lote de cacao rechazado e
 
 | Parte | Qué es |
 |---|---|
-| `index.html` | La expedición: mapa para caminar, misiones con minijuegos (enlazar con hilos, armar el árbol, lanzamiento, lluvia de tarjetas, canasta, memoria, unir, ordenar, construir el árbol, batalla), voz que lee e ilumina cada explicación. |
+| `index.html` | La expedición: mapa para caminar, misiones con minijuegos (enlazar con hilos, armar el árbol, lanzamiento, lluvia de tarjetas, canasta, memoria, unir, ordenar, construir el árbol, batalla), voz que lee e ilumina cada explicación. En cada nivel: ↩ Atrás (paso anterior), ⏸ Pausa (congela el juego y la voz; tecla P) y ▶ Escuchar / ⏹ Parar voz. |
 | `vivo/` | Los capítulos de la historia de Don Arley (el viaje del lote, revisar el camino, nace el árbol, otro sistema, demuéstralo). |
 | `salon/` | **Reto del salón**: el proyector crea una sala con QR; cada estudiante entra desde el celular, queda en un equipo (Actores, Datos, Procesos o Control) y compite por puntos mientras el árbol crece en el proyector. Probado con 49 jugadores a la vez. |
 | `docs/` | El árbol de problemas (PowerPoint e imagen), el mapa de actores y las guías en PDF. |

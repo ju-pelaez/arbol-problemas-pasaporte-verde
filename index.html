@@ -309,7 +309,7 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 .btrunk{background:var(--trunk);color:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-family:var(--display);font-weight:900;font-size:.92rem;text-align:center;line-height:1.25}
 .tray{position:sticky;bottom:8px;z-index:5;display:grid;gap:8px;background:rgba(14,52,36,.94);border:3px solid var(--ink);border-radius:16px;padding:8px;margin-top:10px}
 .tray .tile{touch-action:none;cursor:grab;width:100%}
-.ghost{position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-70%) rotate(-3deg);max-width:260px;opacity:.95}
+.ghost:not(.btn){position:fixed;z-index:80;pointer-events:none;transform:translate(-50%,-70%) rotate(-3deg);max-width:260px;opacity:.95}
 
 /* ===== teatro de la exposición ===== */
 .stage{position:relative;border:3px solid var(--ink);border-radius:20px;overflow:hidden;box-shadow:0 6px 0 var(--ink);padding:22px 14px 18px;background:radial-gradient(ellipse at 50% 0%,rgba(255,240,180,.42),transparent 62%),linear-gradient(#2a1033,#14081a);color:var(--cream)}
@@ -397,6 +397,15 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 .arbolito .ctronco{width:34%;min-width:170px;background:linear-gradient(90deg,#6B4426,#8A5A34 50%,#6B4426);border-radius:10px;padding:10px;position:relative}
 .arbolito .capa.raiz .zone{border-radius:12px 12px 26px 26px;border-style:dashed}
 .arbolito .zone.full{border-style:solid}
+
+/* pausa, atrás y controles de voz */
+.mtop{flex-wrap:wrap}
+.btnPausa{background:var(--gold)}
+#capaPausa{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(14,52,36,.84);backdrop-filter:blur(4px);padding:16px}
+.caja-pausa{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:22px;box-shadow:0 8px 0 var(--ink);padding:22px 26px;text-align:center;max-width:360px}
+.caja-pausa .ic{font-size:3rem;line-height:1}
+.caja-pausa h2{margin:6px 0}
+.voz-ctl{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
 </style>
 </head>
 <body>
@@ -425,6 +434,35 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 <div class="ov" id="ov" hidden></div>
 
 <script>
+/* ---------- pausa del juego ----------
+   El botón ⏸ (o la tecla P) congela todo: las animaciones, los relojes de los minijuegos y la voz.
+   ▶ Seguir lo reanuda donde iba. */
+let PAUSADO=false;
+const _raf=window.requestAnimationFrame.bind(window),_si=window.setInterval.bind(window),enEspera=[];
+window.requestAnimationFrame=cb=>{if(PAUSADO){enEspera.push(cb);return -1}return _raf(cb)};
+window.setInterval=(f,ms,...a)=>_si(()=>{if(!PAUSADO)f(...a)},ms);
+function pausar(){
+  if(PAUSADO)return;PAUSADO=true;
+  try{speechSynthesis.pause()}catch(e){}
+  const c=document.createElement('div');c.id='capaPausa';
+  c.innerHTML='<div class="caja-pausa"><div class="ic">⏸</div><h2>Juego en pausa</h2><p>Todo quedó congelado: el minijuego, el reloj y la voz.</p><button class="btn" id="seguirPausa">▶ Seguir</button><p class="muted" style="margin-top:8px">Tecla P para pausar o seguir</p></div>';
+  document.body.appendChild(c);c.querySelector('#seguirPausa').onclick=reanudar;
+  document.querySelectorAll('.btnPausa').forEach(b=>b.textContent='▶ Seguir');
+}
+function reanudar(){
+  if(!PAUSADO)return;PAUSADO=false;
+  try{speechSynthesis.resume()}catch(e){}
+  const c=document.getElementById('capaPausa');if(c)c.remove();
+  enEspera.splice(0).forEach(cb=>_raf(cb));
+  document.querySelectorAll('.btnPausa').forEach(b=>b.textContent='⏸ Pausa');
+}
+const alternarPausa=()=>PAUSADO?reanudar():pausar();
+// En pausa ninguna tecla mueve el juego; la P pausa o sigue.
+addEventListener('keydown',e=>{
+  const escribiendo=/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'');
+  if((e.key==='p'||e.key==='P')&&!escribiendo&&document.querySelector('.btnPausa')){e.preventDefault();e.stopImmediatePropagation();alternarPausa();return}
+  if(PAUSADO){e.preventDefault();e.stopImmediatePropagation()}
+},true);
 /* ================= utilidades ================= */
 const $=(s,el=document)=>el.querySelector(s), $$=(s,el=document)=>[...el.querySelectorAll(s)];
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -664,6 +702,15 @@ entorno:[
 ['La normativa internacional, como parte del entorno…','define la exigencia y sus fechas; el sistema la recibe, no la decide','la decide el productor','no tiene fechas','es una causa interna','Por eso está en el entorno.'],
 ['¿Cuál NO es del entorno?','La exigencia baja por la cadena y recae en el más débil','Conectividad rural intermitente','Informalidad en la tenencia','Política pública de tierras','Esa es una causa de actores, dentro del sistema.']]
 };
+Q.factibilidad=[
+['¿Qué pregunta la factibilidad?','¿Se puede hacer con los recursos, la tecnología, las personas y las leyes que hay?','¿Cuánto cuesta el cacao en Europa?','¿Quién tiene la culpa del problema?','¿Cuál es el efecto final?','Factible = se puede hacer.'],
+['¿Qué pregunta la viabilidad?','¿Vale la pena y se sostiene en el tiempo?','¿Cuántos actores hay?','¿Qué color tiene cada columna?','¿Dónde va el entorno?','Viable = conviene y dura.'],
+['¿Por qué la propuesta es factible técnicamente?','Porque los datos ya existen (IDEAM, ICA, ANT, IGAC); falta integrarlos alrededor del predio','Porque hay internet en todas las veredas','Porque el productor ya tiene coordenadas','Porque Europa entrega los datos','No hay que inventar los datos: hay que relacionarlos.'],
+['¿Qué riesgo técnico hay en el Caquetá?','La conectividad intermitente en las veredas','Que no haya ganado','Que no exista el IDEAM','Que no haya compradores','Por eso el requisito RI-06 pide funcionar sin conexión permanente.'],
+['¿Qué hace factible la parte operativa?','Acompañar al productor y darle la información en su lenguaje','Obligar al productor a aprender inglés','Quitarle la finca','Que lo haga solo la Unión Europea','Requisito RI-07: lenguaje comprensible. Y las asociaciones acompañan.'],
+['¿Quién certifica que un predio está libre de deforestación?','La autoridad competente: el sistema informa y documenta','El mismo sistema','El comprador europeo','Cualquier vecino','Regla R-03 de la propuesta.'],
+['¿Qué ley protege la información del predio en Colombia?','La Ley 1581 de 2012 (habeas data)','El Código de Tránsito','La Ley de Víctimas','Ninguna','La información del productor se comparte solo con su autorización (requisito RI-09).'],
+['¿Por qué el proyecto es viable ahora?','Porque hay necesidad real y las fechas del reglamento ya están encima','Porque hacer apps es barato','Porque el árbol lo dice','Porque no tiene riesgos','30-12-2026 para grandes y medianos; 30-06-2027 para micro y pequeños.']];
 const QBYID={};
 Object.entries(Q).forEach(([k,arr])=>arr.forEach((r,i)=>{QBYID[k+'-'+i]={id:k+'-'+i,q:r[0],a:r[1],w:r.slice(2,5),why:r[5],bank:k}}));
 const qsOf=(bank,n)=>shuffle(Q[bank].map((_,i)=>QBYID[bank+'-'+i])).slice(0,n||99);
@@ -823,6 +870,28 @@ const MISSIONS=[
   {text:'No hay indicadores',b:'in'},{text:'El dato no se genera en el predio',b:'in'},{text:'Acopio sin conservar el origen',b:'in'},{text:'La exigencia recae en el más débil',b:'in'}]},
  {t:'battle',bank:'entorno'}]},
 
+{id:'factibilidad',icon:'⚖️',k:'trk',title:'Factibilidad y viabilidad',sub:'¿Se puede hacer? ¿Vale la pena?',mon:['El Imposible','#8A5A2B'],steps:[
+ {t:'talk',mood:'happy',say:'El árbol analiza el **problema**. Ahora miramos la **propuesta** del Pasaporte Verde con dos preguntas de analista: ¿se **puede** hacer? ¿**vale la pena**?',
+  card:`${rows([['Factibilidad','¿Se PUEDE hacer con los recursos, la tecnología, las personas y las leyes que hay? Se revisa en cuatro partes: técnica, operativa, económica y legal.','dat'],['Viabilidad','¿VALE LA PENA y se SOSTIENE en el tiempo? ¿Hay necesidad real, es el momento, tiene impacto?','act']])}<p class="quote" style="margin-top:8px">Truco: factible = <b>se puede</b> · viable = <b>conviene y dura</b>.</p>`},
+ {t:'talk',mood:'think',say:'Primero, ¿qué **propone** el Pasaporte Verde? No es una app: son **lineamientos** de cómo debe comportarse el sistema.',
+  card:rows([['L-01 · El dato nace en el predio','La información se genera donde ocurre la producción.','pro'],['L-02 · Integración de fuentes','Lo ambiental, lo sanitario y lo predial se relacionan alrededor del predio.','pro'],['L-03 · Traducción del requisito','La exigencia se explica en el lenguaje del productor.','pro'],['L-04 · Sin conexión permanente','El proceso funciona con señal intermitente.','pro'],['L-05 · Trazabilidad verificable','Todo resultado se puede reconstruir desde sus fuentes.','pro'],['L-06 · Agregación por lote','Se consolida el estado de todos los predios de un lote.','pro'],['L-07 · Medición del sistema','El sistema produce sus propios indicadores.','pro']])},
+ {t:'talk',mood:'wow',say:'**Factibilidad técnica**: ¿hay datos y tecnología para hacerlo?',
+  card:rows([['Los datos ya existen','IDEAM (bosques y alertas), ICA (SINIGAN y guías de movilización), ANT e IGAC (tierra y catastro). Falta relacionarlos alrededor del predio.','dat'],['El reto: la señal','En las veredas la conectividad es intermitente; por eso el requisito RI-06 pide que funcione sin conexión permanente.','dat'],['Conclusión','Es factible técnicamente: no hay que inventar los datos, hay que integrarlos.','dat']])},
+ {t:'talk',mood:'happy',say:'**Factibilidad operativa**: ¿la gente lo usaría y lo podría manejar?',
+  card:rows([['El productor','Necesita la información en su lenguaje (RI-07), no en términos técnicos.','act'],['Las asociaciones','El Comité de Ganaderos y ASOHECA pueden acompañar el registro de muchos predios.','act'],['La confianza','La información del predio es del productor y solo se comparte con su autorización (RI-09).','act'],['Conclusión','Es factible si se acompaña al productor y se respeta su información.','act']])},
+ {t:'talk',mood:'think',say:'**Factibilidad económica**: ¿cuesta menos de lo que ahorra o de lo que hoy se pierde?',
+  card:`${rows([['Hoy','Acreditar el origen es lento, caro y depende de intermediarios; el costo cae en el más débil.','con'],['Con la propuesta','Se reutilizan fuentes públicas que ya existen: no hay que producir los datos desde cero.','con'],['Criterios de la propuesta','Menos tiempo ↓, menos costo ↓ y más productores con acceso al mercado ↑.','con'],['Conclusión','Es factible económicamente si reduce costo y tiempo frente a las ventas que hoy se pierden.','con']])}<p class="quote" style="margin-top:8px">La propuesta no fija un presupuesto en pesos: la factibilidad económica se evalúa con estos criterios de solución óptima.</p>`},
+ {t:'talk',mood:'wow',say:'**Factibilidad legal**: ¿lo permite y lo pide la ley?',
+  card:rows([['Reglamento (UE) 2023/1115','Exige la ubicación de cada parcela y que no haya deforestación después del 31-12-2020.','pro'],['Las fechas','30-12-2026 para grandes y medianos; 30-06-2027 para micro y pequeños.','pro'],['¿Quién certifica?','La autoridad competente. El sistema informa y documenta, no certifica (regla R-03).','pro'],['Datos personales','Ley 1581 de 2012 (habeas data): la información del predio se comparte solo con autorización.','pro']])},
+ {t:'talk',mood:'happy',btn:'¡A jugar!',say:'Y la **viabilidad**: ¿vale la pena y se sostiene en el tiempo?',
+  card:rows([['Necesidad real','Los compradores europeos ya piden coordenadas, imágenes satelitales y documentos.','efe'],['Es el momento','Las fechas del reglamento ya están encima.','efe'],['Impacto','Que el pequeño productor no quede excluido y que no se amplíe la frontera agrícola.','efe'],['Riesgos','La señal en el campo, la confianza del productor y que las entidades mantengan sus datos al día.','efe'],['Conclusión','Es viable: hay necesidad, hay fecha y hay fuentes. Hay que cuidar los riesgos.','efe']])},
+ {t:'match',title:'Une cada estudio con su pregunta',pairs:[['Técnica','¿Hay datos y tecnología?'],['Operativa','¿La gente lo usaría?'],['Económica','¿Cuesta menos de lo que ahorra?'],['Legal','¿Lo permite la ley?'],['Viabilidad','¿Vale la pena y se sostiene?']]},
+ {t:'sort',title:'¿Qué factibilidad revisa cada pregunta?',buckets:[B('tec','🛠️ Técnica','dat'),B('ope','👥 Operativa','act'),B('eco','💰 Económica','con'),B('leg','⚖️ Legal','pro')],items:[
+  {text:'¿Funciona sin señal permanente?',b:'tec'},{text:'¿Se pueden unir los datos del IDEAM, el ICA y la ANT?',b:'tec'},
+  {text:'¿El productor entiende lo que le muestra?',b:'ope'},{text:'¿Las asociaciones pueden acompañar el registro?',b:'ope'},
+  {text:'¿Reduce el costo de acreditar el origen?',b:'eco'},{text:'¿Cuesta menos que las ventas que hoy se pierden?',b:'eco'},
+  {text:'¿Cumple el Reglamento (UE) 2023/1115?',b:'leg'},{text:'¿Respeta la Ley 1581 de datos personales?',b:'leg'}]},
+ {t:'battle',bank:'factibilidad'}]},
 {id:'jefe',icon:'👑',k:'efe',boss:true,title:'Jefe final: arma tu árbol',sub:'Todo junto, como en la exposición',mon:['El Gran Desarticulado','#5E3A8C'],steps:[
  {t:'talk',mood:'wow',say:'¡Llegaste al **jefe final**! Primero arma las **raíces**: las 12 causas en sus 4 columnas.',
   card:`<p>Sin mirar. Si dudas, piensa en la pregunta de cada columna:</p>${cmp({act:C.act.q,dat:C.dat.q,pro:C.pro.q,con:C.con.q})}`},
@@ -834,7 +903,7 @@ const MISSIONS=[
 ];
 const MBYID=Object.fromEntries(MISSIONS.map(m=>[m.id,m]));
 // Orden del camino: las misiones siguen la historia de Don Arley (los capítulos van entre ellas).
-const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','control','arbol','problema','efectos','entorno','jefe'];
+const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','control','arbol','problema','efectos','entorno','factibilidad','jefe'];
 MISSIONS.sort((a,b)=>ORDEN_MISIONES.indexOf(a.id)-ORDEN_MISIONES.indexOf(b.id));
 
 /* ================= vistas ================= */
@@ -880,13 +949,17 @@ function wordsIn(el,text){
 /* ================= misión ================= */
 function playMission(m){
   let i=0;const ctx={m,errors:0};
-  const el=scene(`<div class="mtop"><button class="btn small ghost" id="back">← Mapa</button><div class="dots">${m.steps.map(()=>'<i></i>').join('')}</div></div><div id="step"></div>`);
-  $('#back',el).onclick=()=>showMap();
-  const host=$('#step',el), dots=$$('.dots i',el);
+  const el=scene(`<div class="mtop"><button class="btn small ghost" id="back">← Mapa</button><button class="btn small ghost" id="prev" title="Volver al paso anterior">↩ Atrás</button><button class="btn small btnPausa" id="pausa" title="Pausar el juego (tecla P)">⏸ Pausa</button><div class="dots">${m.steps.map(()=>'<i></i>').join('')}</div></div><div id="step"></div>`);
+  $('#back',el).onclick=()=>{reanudar();showMap()};
+  // Atrás: vuelve al paso anterior de la misión (en el primer paso, vuelve al mapa).
+  $('#prev',el).onclick=()=>{reanudar();hush();tone('tap');if(i>0){i--;next()}else showMap()};
+  $('#pausa',el).onclick=alternarPausa;
+  let host=$('#step',el);const dots=$$('.dots i',el);
   function next(){
     if(i>=m.steps.length)return finish();
     dots.forEach((d,k)=>{d.classList.toggle('on',k<i);d.classList.toggle('cur',k===i)});
-    host.innerHTML='';hush();window.scrollTo(0,0);
+    // Cada paso usa un contenedor nuevo: así los relojes del paso anterior se apagan solos.
+    const nuevo=host.cloneNode(false);host.replaceWith(nuevo);host=nuevo;hush();window.scrollTo(0,0);
     const st=m.steps[i];RUN[st.t](host,st,ctx,()=>{i++;next()});
   }
   function finish(){
@@ -906,13 +979,20 @@ function playMission(m){
 
 const RUN={};
 RUN.talk=(host,st,ctx,done)=>{
-  host.innerHTML=`<div class="talk">${ceiba(st.mood||'happy')}<div class="bubble"><p class="say"></p><button class="spk" aria-label="Escuchar">🔊</button></div></div>
+  host.innerHTML=`<div class="talk">${ceiba(st.mood||'happy')}<div class="bubble"><p class="say"></p><button class="spk" aria-label="Escuchar o parar la voz" title="Escuchar o parar la voz">🔊</button></div></div>
+   <div class="voz-ctl"><button class="btn small" id="vozPlay">▶ Escuchar</button><button class="btn small ghost" id="vozStop">⏹ Parar voz</button></div>
    ${st.card?`<div class="paper card pop">${st.card}</div>`:''}<div class="act"><button class="btn" id="nx">${st.btn||'Entendido →'}</button></div>`;
   wordsIn($('.say',host),st.say);
   // Ceibita lee lo que dice y después todo el recuadro, fila por fila, iluminando lo que está leyendo.
   const leerTodo=()=>leerBloques([{el:$('.bubble',host),texto:plain(st.say)},...bloquesDe($('.card',host))]);
+  const habla=()=>{try{return speechSynthesis.speaking||speechSynthesis.pending}catch(e){return false}};
+  const parar=()=>{hush();if(PAUSADO)reanudar()};
   if(S.tts)leerTodo();
-  $('.spk',host).onclick=leerTodo;
+  $('.spk',host).onclick=()=>habla()?parar():leerTodo();
+  $('#vozPlay',host).onclick=()=>{if(PAUSADO)reanudar();leerTodo()};
+  $('#vozStop',host).onclick=parar;
+  // El botón 🔊 muestra ⏹ mientras Ceibita habla.
+  const marca=setInterval(()=>{const b=$('.spk',host);if(!b||!host.isConnected){clearInterval(marca);return}b.textContent=habla()?'⏹':'🔊'},400);
   $('#nx',host).onclick=e=>{hush();tone('tap');addXP(2,e.currentTarget);done()};
 };
 
@@ -1304,7 +1384,7 @@ RUN.armar=(host,st,ctx,done)=>{
 };
 
 // Cada misión con un juego distinto.
-(()=>{const modos={sistema:'enlazar',modelo:'enlazar',problema:'lanzar',datos:'lanzar',efectos:'armar',entorno:'armar'};
+(()=>{const modos={sistema:'enlazar',modelo:'enlazar',problema:'lanzar',datos:'lanzar',efectos:'armar',entorno:'armar',factibilidad:'enlazar'};
   Object.entries(modos).forEach(([mid,modo])=>{const s=MBYID[mid].steps.find(x=>x.t==='sort');if(s)s.modo=modo});
   // Cómo se apilan las partes del árbol en los juegos de armar (de arriba hacia abajo).
   const ef=MBYID.efectos.steps.find(x=>x.t==='sort');if(ef){ef.capas=['f','i','d','tronco'];ef.title='Arma la copa: ¿en qué piso va cada efecto?'}
@@ -1488,7 +1568,7 @@ const CAPS={viaje:{icon:'🎬',label:'El viaje del lote'},camino:{icon:'🛤️'
 const STATIONS=(()=>{
   const m=id=>{const x=MBYID[id];return{kind:'m',id,icon:x.icon,label:x.title,k:x.k}},c=id=>({kind:'cap',id,icon:CAPS[id].icon,label:CAPS[id].label,k:'efe'});
   const all=[c('viaje'),m('sistema'),m('modelo'),c('camino'),m('actores'),m('datos'),m('procesos'),m('control'),{kind:'x',id:'mover',icon:'🕺',label:'Ceibita dice',k:'pro'},
-    c('arbol'),m('arbol'),m('problema'),m('efectos'),m('entorno'),c('otro'),c('reto'),m('jefe')];
+    c('arbol'),m('arbol'),m('problema'),m('efectos'),m('entorno'),c('otro'),c('reto'),m('factibilidad'),m('jefe')];
   return all.map((s,i)=>({...s,x:380+i*460}))})();
 const W_END=STATIONS[STATIONS.length-1].x+720;
 const SEEDS=FACTS.map((f,i)=>{const gp=Math.min(Math.floor(i/2),STATIONS.length-2);return{i,x:STATIONS[gp].x+150+(i%2)*160,hi:i%2===1}});
