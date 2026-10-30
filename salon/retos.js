@@ -1,4 +1,6 @@
 // retos.js
+// Hay dos temas: el árbol de problemas (normal) y factibilidad y viabilidad (/salon/?tema=factibilidad).
+const TEMA = new URLSearchParams(location.search).get('tema') === 'factibilidad' ? 'factibilidad' : 'arbol';
 // Los 10 retos del juego del salón. Cada reto, si la mayoría acierta, le agrega una pieza
 // al árbol del proyector. Van en orden para que el árbol se arme de abajo hacia arriba:
 // suelo → 4 raíces → tronco → 3 hojas → fruto.
@@ -58,7 +60,7 @@ const EFECTOS_DIRECTOS = [
 const barajar = l => { const a = l.slice(); for (let n = a.length - 1; n > 0; n--) { const m = Math.floor(Math.random() * (n + 1)); [a[n], a[m]] = [a[m], a[n]]; } return a; };
 
 // Arma los 11 retos de una partida (las fallas y el orden de las fichas cambian cada vez).
-function armarRetos() {
+function armarRetosArbol() {
   const azar = l => l[Math.floor(Math.random() * l.length)];
   const parte = (texto, correcta, porque, pieza) => ({ tipo: 'parte', titulo: '¿En qué parte del árbol va?', texto, opciones: PARTES.map(p => ({ txt: p.t, ic: p.ic })), correcta: PARTES.findIndex(p => p.k === correcta), porque, pieza });
   const usadas = [];
@@ -86,7 +88,7 @@ function armarRetos() {
 
 // Los retos se juegan en 5 capítulos, como una historia: cada uno abre con una presentación en el
 // proyector y deja ver qué parte del árbol se va a construir. El último reto vale doble.
-const CAPITULOS_SALON = [
+const CAPITULOS_ARBOL = [
   { desde: 0, ic: '🏞️', t: 'El terreno', piezas: ['suelo'],
     txt: 'Todo árbol crece en un suelo. Antes de buscar causas, separemos lo que rodea al sistema de lo que pasa dentro de él.' },
   { desde: 1, ic: '🍫', t: 'El viaje de Don Arley', piezas: ['r-act', 'r-dat', 'r-pro', 'r-con'],
@@ -98,3 +100,84 @@ const CAPITULOS_SALON = [
   { desde: 9, ic: '🍎', t: 'El fruto · Gran final', piezas: ['fruto'],
     txt: 'La última pregunta es la más importante de la materia. ¡Vale puntos dobles!' },
 ];
+
+// ------------------------------------------------------------------ FACTIBILIDAD Y VIABILIDAD
+// Mismo árbol del proyector, otra historia: las 4 raíces son las 4 factibilidades de la propuesta
+// del Pasaporte Verde y la copa es la viabilidad.
+const ESTUDIOS = [
+  { k: 'tec', t: 'Técnica',   ic: '🛠️' },
+  { k: 'ope', t: 'Operativa', ic: '👥' },
+  { k: 'eco', t: 'Económica', ic: '💰' },
+  { k: 'leg', t: 'Legal',     ic: '⚖️' },
+];
+const SITUACIONES_FACT = {
+  tec: [
+    '¿El sistema funciona aunque la señal se caiga en la vereda?',
+    '¿Se pueden unir los datos del IDEAM, el ICA y la ANT alrededor de cada predio?',
+    '¿Hay tecnología para ubicar cada finca con sus coordenadas?',
+  ],
+  ope: [
+    '¿Don Arley entiende lo que el sistema le muestra?',
+    '¿Las asociaciones como ASOHECA pueden acompañar el registro de las fincas?',
+    '¿El productor confía en compartir la información de su predio?',
+  ],
+  eco: [
+    '¿Acreditar el origen cuesta menos que las ventas que hoy se pierden?',
+    '¿Se ahorra plata al reutilizar las fuentes públicas que ya existen?',
+    '¿El productor deja de pagarle a un intermediario para que le arme la carpeta?',
+  ],
+  leg: [
+    '¿Cumple el Reglamento (UE) 2023/1115 de productos libres de deforestación?',
+    '¿Respeta la Ley 1581 de 2012 de datos personales?',
+    '¿Quién tiene la autoridad para certificar que un predio está libre de deforestación?',
+  ],
+};
+
+function armarRetosFactibilidad() {
+  const azar = l => l[Math.floor(Math.random() * l.length)];
+  const estudio = (k, pieza) => ({ tipo: 'estudio', titulo: '¿Qué factibilidad revisa esta pregunta?', texto: azar(SITUACIONES_FACT[k]),
+    opciones: ESTUDIOS.map(e => ({ txt: e.t, ic: e.ic })), correcta: ESTUDIOS.findIndex(e => e.k === k),
+    porque: { tec: 'Es sobre datos y tecnología, ¿hay con qué hacerlo? TÉCNICA.', ope: 'Es sobre las personas, ¿lo usarían y lo pueden manejar? OPERATIVA.',
+      eco: 'Es sobre costos y beneficios, ¿cuesta menos de lo que ahorra? ECONÓMICA.', leg: 'Es sobre leyes y normas, ¿lo permite la ley? LEGAL.' }[k], pieza });
+  const fov = (texto, correcta, porque, pieza) => ({ tipo: 'fov', titulo: '¿Factible o viable?', texto,
+    opciones: [{ txt: 'Factible: ¿se PUEDE hacer?', ic: '🔧' }, { txt: 'Viable: ¿VALE LA PENA y dura?', ic: '🌱' }], correcta, porque, pieza });
+  // Las opciones se barajan para que la correcta no quede siempre en el mismo lugar.
+  const pregunta = (texto, opciones, porque, pieza) => { const ops = barajar(opciones);
+    return { tipo: 'pregunta', titulo: 'Factibilidad y viabilidad', texto, opciones: ops.map(t => ({ txt: t, ic: '' })), correcta: ops.indexOf(opciones[0]), porque, pieza }; };
+
+  return [
+    pregunta('¿Qué pregunta la FACTIBILIDAD?', ['¿Se puede hacer con los recursos, la tecnología, las personas y las leyes que hay?', '¿Vale la pena y se sostiene en el tiempo?', '¿Quién tiene la culpa del problema?', '¿Cuál es el efecto final del árbol?'],
+      'Factible = se PUEDE hacer. Viable = VALE LA PENA y se sostiene.', 'suelo'),
+    fov('Las fechas del reglamento europeo ya están encima: hay que hacerlo ahora.', 1, 'Es el momento: eso dice si vale la pena hacerlo YA. Es VIABILIDAD.', null),
+    estudio('tec', 'r-act'),
+    estudio('ope', 'r-dat'),
+    estudio('eco', 'r-pro'),
+    estudio('leg', 'r-con'),
+    pregunta('¿Qué propone el Pasaporte Verde?', ['Lineamientos para que el dato nazca en el predio y se integren las fuentes', 'Una app para vender cacao por internet', 'Prohibir la ganadería en el Caquetá', 'Que Europa vaya a revisar cada finca'],
+      'No es una app: son lineamientos de cómo debe comportarse el sistema (L-01 a L-07).', 'tronco'),
+    pregunta('¿Quién certifica que un predio está libre de deforestación?', ['La autoridad competente: el sistema informa y documenta', 'El mismo sistema', 'El comprador europeo', 'Cualquier vecino de la vereda'],
+      'Regla R-03 de la propuesta: el sistema no certifica, deja la evidencia lista.', null),
+    fov('Los compradores europeos ya piden coordenadas, imágenes satelitales y documentos.', 1, 'Hay una necesidad real: el proyecto vale la pena. Es VIABILIDAD.', 'h1'),
+    fov('Los datos del IDEAM, el ICA y la ANT ya existen; solo hay que integrarlos.', 0, 'Hay con qué hacerlo: es FACTIBILIDAD (técnica).', 'h2'),
+    pregunta('¿Cuál es un RIESGO para que el proyecto se sostenga?', ['Que la señal se caiga en el campo y el productor no confíe', 'Que haya demasiados árboles', 'Que el cacao del Caquetá sea muy bueno', 'No tiene ningún riesgo'],
+      'La viabilidad también mira los riesgos: la señal, la confianza y que las entidades mantengan sus datos al día.', 'h3'),
+    pregunta('Entonces, ¿el Pasaporte Verde es factible y viable?', ['Sí: hay datos, hay fecha y hay necesidad; hay que cuidar la señal y la confianza', 'No: no existe ningún dato', 'Solo si Europa lo paga todo', 'Nunca se puede saber'],
+      'Factible porque los datos, las personas y las leyes están; viable porque hay necesidad real, es el momento y tiene impacto.', 'fruto'),
+  ];
+}
+
+const CAPITULOS_FACTIBILIDAD = [
+  { desde: 0, ic: '⚖️', t: 'Dos preguntas del analista', piezas: ['suelo'],
+    txt: 'Ya sabemos cuál es el problema. Antes de proponer algo, un analista pregunta: ¿se PUEDE hacer? ¿VALE LA PENA?' },
+  { desde: 2, ic: '🔧', t: 'Las 4 factibilidades', piezas: ['r-act', 'r-dat', 'r-pro', 'r-con'],
+    txt: 'Técnica, operativa, económica y legal. Cada pregunta revisa una. ¿Cuál es cuál?' },
+  { desde: 6, ic: '📜', t: 'La propuesta', piezas: ['tronco'],
+    txt: '¿Qué propone de verdad el Pasaporte Verde? Y ojo: ¿quién certifica?' },
+  { desde: 8, ic: '🌱', t: 'La viabilidad', piezas: ['h1', 'h2', 'h3'],
+    txt: '¿Vale la pena y se sostiene en el tiempo? Necesidad, momento, impacto… y riesgos.' },
+  { desde: 11, ic: '🏆', t: 'El veredicto · Gran final', piezas: ['fruto'],
+    txt: '¿El Pasaporte Verde es factible y viable? ¡Vale puntos dobles!' },
+];
+
+const armarRetos = () => TEMA === 'factibilidad' ? armarRetosFactibilidad() : armarRetosArbol();
+const CAPITULOS_SALON = TEMA === 'factibilidad' ? CAPITULOS_FACTIBILIDAD : CAPITULOS_ARBOL;

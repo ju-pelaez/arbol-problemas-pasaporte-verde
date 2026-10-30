@@ -3,7 +3,8 @@
   "redirects": [
     { "source": "/reto", "destination": "/salon/", "permanent": false },
     { "source": "/sala", "destination": "/salon/", "permanent": false },
-    { "source": "/salon", "destination": "/salon/", "permanent": false }
+    { "source": "/salon", "destination": "/salon/", "permanent": false },
+    { "source": "/factibilidad", "destination": "/salon/?tema=factibilidad", "permanent": false }
   ],
   "headers": [
     {

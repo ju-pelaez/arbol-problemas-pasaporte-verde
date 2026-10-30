@@ -29,6 +29,12 @@ const EQUIPOS = [
   { n: 'Procesos', ic: '🔁', c: '#D0661C' },
   { n: 'Control',  ic: '🎯', c: '#C99300' },
 ];
+// En el reto de factibilidad los equipos son las 4 factibilidades (mismos colores).
+function ponerTema(t) {
+  if (t !== 'factibilidad') return;
+  ESTUDIOS.forEach((e, k) => Object.assign(EQUIPOS[k], { n: e.t, ic: e.ic }));
+}
+ponerTema(TEMA);
 const REACCIONES = ['🔥', '👏', '🌳', '😮', '😂', '💚', '🤯', '🙌'];
 // Chat del salón: frases rápidas para no tener que escribir.
 const FRASES = ['¡Vamos, equipo! 💪', '¡Eso! 🔥', '¿Cuál es? 🤔', '¡Qué rápido! ⚡', '¡Bien, salón! 🌳', 'Ayúdenme 🙏'];
@@ -129,13 +135,16 @@ function confeti() {
 // ------------------------------------------------------------------ inicio
 function inicio() {
   app.innerHTML = `<div class="inicio">
-    <h1>Reto del <em>salón</em></h1>
-    <p>Todos responden desde el celular, en 4 equipos. Cuando la mayoría acierta, el árbol de problemas crece en el proyector.</p>
+    ${TEMA === 'factibilidad'
+      ? `<h1>Factibilidad <em>y viabilidad</em></h1>
+    <p>12 retos sobre la propuesta del Pasaporte Verde: ¿se <b>puede</b> hacer? ¿<b>vale la pena</b>? Todos responden desde el celular, en 4 equipos: Técnica, Operativa, Económica y Legal.</p>`
+      : `<h1>Reto del <em>salón</em></h1>
+    <p>Todos responden desde el celular, en 4 equipos. Cuando la mayoría acierta, el árbol de problemas crece en el proyector.</p>`}
     <div class="dos">
       <button class="btn" id="abrir">📽️ Abrir la sala<small>En el computador del proyector</small></button>
       <button class="btn sec" id="unirme">📱 Unirme con un código<small>En tu celular</small></button>
     </div>
-    <p style="margin-top:14px"><a href="../">← Volver al juego</a></p>
+    <p style="margin-top:14px"><a href="../">← Volver al juego</a> · <a href="${TEMA === 'factibilidad' ? './' : './?tema=factibilidad'}">${TEMA === 'factibilidad' ? '🌳 Reto del árbol de problemas' : '⚖️ Reto de factibilidad y viabilidad'}</a></p>
   </div>`;
   // Abierto desde este computador: se avisa que para la clase se usa la página web.
   if (ES_LOCAL) app.querySelector('.inicio').insertAdjacentHTML('afterbegin', `<div class="aviso-local">⚠️ Estás en una copia de tu computador. Para la clase usa la página web: <a href="${PUBLICO}">${PUBLICO.replace('https://', '')}</a></div>`);
@@ -148,7 +157,7 @@ function pedirCodigo() {
     <div class="avatar">📱</div><h1>Entrar a la sala</h1><p>Escribe el código que sale en el proyector.</p>
     <input id="cod" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD">
     <button class="btn" id="ir">Entrar →</button></div>`;
-  const ir = () => { const c = $('#cod').value.trim().toUpperCase(); if (c.length === 4) location.search = '?sala=' + c; };
+  const ir = () => { const c = $('#cod').value.trim().toUpperCase(); if (c.length === 4) location.search = '?sala=' + c + (TEMA === 'factibilidad' ? '&tema=factibilidad' : ''); };
   $('#ir').onclick = ir;
   $('#cod').onkeydown = e => { if (e.key === 'Enter') ir(); };
   $('#cod').focus();
@@ -204,7 +213,7 @@ function anfitrion() {
     const m = todos().filter(j => j.equipo === k);
     return { ...e, k, cant: m.length, prom: m.length ? Math.round(m.reduce((s, j) => s + j.puntos, 0) / m.length) : 0 };
   }).sort((a, b) => b.prom - a.prom);
-  const bienvenida = j => ({ t: 'bienvenido', nombre: j.nombre, avatar: j.avatar, equipo: j.equipo, puntos: j.puntos, chat: chatOn });
+  const bienvenida = j => ({ t: 'bienvenido', tema: TEMA, nombre: j.nombre, avatar: j.avatar, equipo: j.equipo, puntos: j.puntos, chat: chatOn });
 
   function abrirPeer() {
     peer = new CanalPeer(PREFIJO + codigo);
@@ -325,17 +334,18 @@ function anfitrion() {
   function pintarSala(aviso) {
     estado = 'sala';
     const base = ES_LOCAL ? PUBLICO : location.origin + location.pathname.replace(/index\.html$/, '');
-    const url = base + '?sala=' + codigo;
+    const url = base + '?sala=' + codigo + (TEMA === 'factibilidad' ? '&tema=factibilidad' : '');
     const qr = qrcode(0, 'M'); qr.addData(url); qr.make();
     app.innerHTML = `<div class="proy">
-      <div class="cab"><div class="titulo"><small>ÁRBOL DE PROBLEMAS</small>Reto del salón</div><span class="pill grande-pill" id="njug"></span><a class="pill" href="../">← Juego</a></div>
+      <div class="cab"><div class="titulo"><small>${TEMA === 'factibilidad' ? 'RETO DEL SALÓN' : 'ÁRBOL DE PROBLEMAS'}</small>${TEMA === 'factibilidad' ? '⚖️ Factibilidad y viabilidad' : 'Reto del salón'}</div><span class="pill grande-pill" id="njug"></span><a class="pill" href="../">← Juego</a></div>
       <div class="sala">
         <div class="qr">${qr.createSvgTag({ cellSize: 8, margin: 2, scalable: true })}
           <div>Código de la sala</div><div class="cod">${codigo}</div><div class="url">${esc(base.replace(/^https?:\/\//, ''))}</div>
           <div class="estado ${conectado ? 'ok' : 'mal'}">${aviso ? esc(aviso) : conectado ? '✓ Sala lista: escaneen el QR' : 'Conectando…'}</div></div>
         <div class="lobby">
-          <h2>¡Construyamos el árbol entre todos!</h2>
-          <p>Escaneen el QR y escriban su nombre. Cada uno cae en un equipo: <b>Actores, Datos, Procesos o Control</b>. Pueden hablar con su equipo: gana el que tenga mejor promedio. Cuando la mayoría del salón acierta, el árbol crece.</p>
+          ${TEMA === 'factibilidad' ? `<div class="tema-fact"><span>🔧 ¿Se PUEDE hacer?</span><span>🌱 ¿VALE LA PENA?</span></div>
+          <h2>¿El Pasaporte Verde es factible y viable?</h2>` : '<h2>¡Construyamos el árbol entre todos!</h2>'}
+          <p>Escaneen el QR y escriban su nombre. Cada uno cae en un equipo: <b>${EQUIPOS.map(e => e.n).join(', ').replace(/, ([^,]*)$/, ' o $1')}</b>. Pueden hablar con su equipo: gana el que tenga mejor promedio. Cuando la mayoría del salón acierta, el árbol crece.</p>
           <div class="equipos" id="equipos"></div>
           <div class="acciones">
             <button class="btn" id="empezar" disabled>▶ Empezar</button>
@@ -373,7 +383,7 @@ function anfitrion() {
     return m;
   };
   const esJuego = r => !!r.correctas;   // unir, ordenar o clasificar
-  const ETIQUETA = { falla: '🍫 El viaje de Don Arley', parte: '🌳 Partes del árbol', clasifica: '🌧️ Lluvia de fallas · en el celular', ordena: '🧩 Ordenar · en el celular', une: '🔗 Unir · en el celular' };
+  const ETIQUETA = { falla: '🍫 El viaje de Don Arley', parte: '🌳 Partes del árbol', clasifica: '🌧️ Lluvia de fallas · en el celular', ordena: '🧩 Ordenar · en el celular', une: '🔗 Unir · en el celular', estudio: '🔧 Las 4 factibilidades', fov: '⚖️ ¿Factible o viable?' };
 
   function siguiente() {
     i++;
@@ -821,6 +831,7 @@ function jugador(codigo) {
       return;
     }
     if (d.t === 'bienvenido') {
+      ponerTema(d.tema);
       if (d.chat === false) chatOn = false; else if (d.chat === true) chatOn = true;
       const primera = !dentro;
       dentro = true; clearTimeout(espera);

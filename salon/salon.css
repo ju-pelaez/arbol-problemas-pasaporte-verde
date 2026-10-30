@@ -430,3 +430,10 @@ a { color: var(--oro); }
   .mi-eq { font-size: .85rem; }
   .reac button { font-size: 1.6rem; }
 }
+
+/* Reto de factibilidad: las dos preguntas del analista en la sala de espera. */
+.tema-fact { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.tema-fact span { background: var(--oro); color: #10291c; font-weight: 900; border-radius: 999px; padding: 6px 14px; box-shadow: 0 3px 0 rgba(0,0,0,.35); animation: respira 2.4s ease-in-out infinite; }
+.tema-fact span:nth-child(2) { background: #7ED39A; animation-delay: 1.2s; }
+@keyframes respira { 50% { transform: translateY(-3px) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .tema-fact span { animation: none; } }
