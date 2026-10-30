@@ -401,10 +401,12 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 /* pausa, atrás y controles de voz */
 .mtop{flex-wrap:wrap}
 .btnPausa{background:var(--gold)}
-#capaPausa{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:rgba(14,52,36,.84);backdrop-filter:blur(4px);padding:16px}
-.caja-pausa{background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:22px;box-shadow:0 8px 0 var(--ink);padding:22px 26px;text-align:center;max-width:360px}
-.caja-pausa .ic{font-size:3rem;line-height:1}
-.caja-pausa h2{margin:6px 0}
+/* En pausa el juego sigue a la vista (para explicar lo que se ve): solo un marco dorado y un aviso en la esquina. */
+#capaPausa{position:fixed;inset:0;z-index:300;pointer-events:none;border:5px solid var(--gold);box-shadow:inset 0 0 0 2px var(--ink)}
+.caja-pausa{position:absolute;right:14px;bottom:14px;pointer-events:auto;display:flex;align-items:center;gap:10px;background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:8px 10px 8px 14px;max-width:calc(100vw - 28px);animation:pop .3s}
+.caja-pausa b{font-size:1rem;white-space:nowrap}
+.caja-pausa small{display:block;font-size:.75rem;opacity:.7}
+body.pausado #step{pointer-events:none}
 .voz-ctl{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 10px}
 </style>
 </head>
@@ -445,14 +447,14 @@ function pausar(){
   if(PAUSADO)return;PAUSADO=true;
   try{speechSynthesis.pause()}catch(e){}
   const c=document.createElement('div');c.id='capaPausa';
-  c.innerHTML='<div class="caja-pausa"><div class="ic">⏸</div><h2>Juego en pausa</h2><p>Todo quedó congelado: el minijuego, el reloj y la voz.</p><button class="btn" id="seguirPausa">▶ Seguir</button><p class="muted" style="margin-top:8px">Tecla P para pausar o seguir</p></div>';
-  document.body.appendChild(c);c.querySelector('#seguirPausa').onclick=reanudar;
+  c.innerHTML='<div class="caja-pausa"><div><b>⏸ En pausa</b><small>Tecla P para seguir</small></div><button class="btn small" id="seguirPausa">▶ Seguir</button></div>';
+  document.body.appendChild(c);document.body.classList.add('pausado');c.querySelector('#seguirPausa').onclick=reanudar;
   document.querySelectorAll('.btnPausa').forEach(b=>b.textContent='▶ Seguir');
 }
 function reanudar(){
   if(!PAUSADO)return;PAUSADO=false;
   try{speechSynthesis.resume()}catch(e){}
-  const c=document.getElementById('capaPausa');if(c)c.remove();
+  const c=document.getElementById('capaPausa');if(c)c.remove();document.body.classList.remove('pausado');
   enEspera.splice(0).forEach(cb=>_raf(cb));
   document.querySelectorAll('.btnPausa').forEach(b=>b.textContent='⏸ Pausa');
 }
