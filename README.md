@@ -5,7 +5,7 @@ Juego web para entender el **árbol de problemas** del proyecto **Pasaporte Verd
 **Jugar:** https://arbol-problemas-pasaporte-verde.vercel.app
 **Reto del salón (todo el curso desde el celular):** https://arbol-problemas-pasaporte-verde.vercel.app/salon/
 
-Hecho por **Juan Pablo Peláez Pino**. Proyecto Pasaporte Verde con **Brahiam Parra Bolaños**.
+Hecho por **Juan Pablo Peláez Pino**.
 
 ---
 
