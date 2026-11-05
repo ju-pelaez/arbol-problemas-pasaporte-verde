@@ -141,6 +141,11 @@ function armarRetosFactibilidad() {
       eco: 'Es sobre costos y beneficios, ¿cuesta menos de lo que ahorra? ECONÓMICA.', leg: 'Es sobre leyes y normas, ¿lo permite la ley? LEGAL.' }[k], pieza });
   const fov = (texto, correcta, porque, pieza) => ({ tipo: 'fov', titulo: '¿Factible o viable?', texto,
     opciones: [{ txt: 'Factible: ¿se PUEDE hacer?', ic: '🔧' }, { txt: 'Viable: ¿VALE LA PENA y se sostiene?', ic: '🌱' }], correcta, porque, pieza });
+  // Matriz: cada caso va a uno de 4 cuadros. Las opciones NO se barajan: son los 4 cuadros fijos
+  // (arriba factible, abajo no factible; izquierda viable, derecha no viable).
+  const matriz = (texto, correcta, porque, pieza) => ({ tipo: 'matriz', titulo: '¿En qué cuadro va?', texto,
+    opciones: [{ txt: 'Factible y viable', ic: '🚀' }, { txt: 'Factible, pero NO viable', ic: '🤷' }, { txt: 'Viable, pero NO factible', ic: '🧱' }, { txt: 'Ni factible ni viable', ic: '🚫' }],
+    correcta, porque, pieza });
   // Las opciones se barajan para que la correcta no quede siempre en el mismo lugar.
   const pregunta = (texto, opciones, porque, pieza) => { const ops = barajar(opciones);
     return { tipo: 'pregunta', titulo: 'Factibilidad y viabilidad', texto, opciones: ops.map(t => ({ txt: t, ic: '' })), correcta: ops.indexOf(opciones[0]), porque, pieza }; };
@@ -148,6 +153,10 @@ function armarRetosFactibilidad() {
   return [
     pregunta('¿Qué pregunta la FACTIBILIDAD?', ['¿Se puede hacer con los recursos, la tecnología, las personas y las leyes que hay?', '¿Vale la pena y se sostiene en el tiempo?', '¿Quién tiene la culpa del problema?', '¿Cuál es el efecto final del árbol?'],
       'Factible = se PUEDE hacer. Viable = VALE LA PENA y se sostiene.', 'suelo'),
+    matriz('Vender abrigos de lana en Florencia: los consigues fácil y los puedes vender en la plaza.', 1,
+      'SE PUEDE hacer (es factible), pero con este calor casi nadie los compraría: NO conviene (no es viable).', null),
+    matriz('Un tren rápido Florencia – Bogotá: muchísima gente lo usaría, pero hoy no hay vía, ni plata, ni permisos.', 2,
+      'VALE LA PENA (es viable: hay necesidad e impacto), pero hoy NO SE PUEDE hacer (no es factible).', null),
     fov('Las fechas del reglamento europeo ya están encima: hay que hacerlo ahora.', 1, 'Es el momento: eso dice si vale la pena hacerlo YA. Es VIABILIDAD.', null),
     estudio('tec', 'r-act'),
     estudio('ope', 'r-dat'),
@@ -161,6 +170,8 @@ function armarRetosFactibilidad() {
     fov('Los datos del IDEAM, el ICA y la ANT ya existen; solo hay que integrarlos.', 0, 'Hay con qué hacerlo: es FACTIBILIDAD (técnica).', 'h2'),
     pregunta('¿Cuál es un RIESGO para que el proyecto se sostenga?', ['Que la señal se caiga en el campo y el productor no confíe', 'Que haya demasiados árboles', 'Que el cacao del Caquetá sea muy bueno', 'No tiene ningún riesgo'],
       'La viabilidad también mira los riesgos: la señal, la confianza y que las entidades mantengan sus datos al día.', 'h3'),
+    matriz('Un formulario de 40 hojas, con términos técnicos, para que el productor lo llene solo.', 1,
+      'Imprimirlo SE PUEDE y es barato (factible), pero el productor no lo entendería ni lo llenaría: NO se sostiene (no es viable).', null),
     pregunta('Entonces, ¿el Pasaporte Verde es factible y viable?', ['Sí: hay datos, hay fecha y hay necesidad; hay que cuidar la señal y la confianza', 'No: no existe ningún dato', 'Solo si Europa lo paga todo', 'Nunca se puede saber'],
       'Factible porque los datos, las personas y las leyes están; viable porque hay necesidad real, es el momento y tiene impacto.', 'fruto'),
   ];
@@ -168,14 +179,14 @@ function armarRetosFactibilidad() {
 
 const CAPITULOS_FACTIBILIDAD = [
   { desde: 0, ic: '⚖️', t: 'Dos preguntas del analista', piezas: ['suelo'],
-    txt: 'Ya sabemos cuál es el problema. Antes de proponer algo, un analista pregunta: ¿se PUEDE hacer? ¿VALE LA PENA?' },
-  { desde: 2, ic: '🔧', t: 'Las 4 factibilidades', piezas: ['r-act', 'r-dat', 'r-pro', 'r-con'],
+    txt: 'Ya sabemos cuál es el problema. Antes de proponer algo, un analista pregunta: ¿se PUEDE hacer? ¿VALE LA PENA? Empezamos con casos de la vida diaria.' },
+  { desde: 4, ic: '🔧', t: 'Las 4 factibilidades', piezas: ['r-act', 'r-dat', 'r-pro', 'r-con'],
     txt: 'Técnica, operativa, económica y legal. Cada pregunta revisa una. ¿Cuál es cuál?' },
-  { desde: 6, ic: '📜', t: 'La propuesta', piezas: ['tronco'],
+  { desde: 8, ic: '📜', t: 'La propuesta', piezas: ['tronco'],
     txt: '¿Qué propone de verdad el Pasaporte Verde? Y ojo: ¿quién certifica?' },
-  { desde: 8, ic: '🌱', t: 'La viabilidad', piezas: ['h1', 'h2', 'h3'],
+  { desde: 10, ic: '🌱', t: 'La viabilidad', piezas: ['h1', 'h2', 'h3'],
     txt: '¿Vale la pena y se sostiene en el tiempo? Necesidad, momento, impacto… y riesgos.' },
-  { desde: 11, ic: '🏆', t: 'El veredicto · Gran final', piezas: ['fruto'],
+  { desde: 14, ic: '🏆', t: 'El veredicto · Gran final', piezas: ['fruto'],
     txt: '¿El Pasaporte Verde es factible y viable? ¡Vale puntos dobles!' },
 ];
 

@@ -437,3 +437,10 @@ a { color: var(--oro); }
 .tema-fact span:nth-child(2) { background: #7ED39A; animation-delay: 1.2s; }
 @keyframes respira { 50% { transform: translateY(-3px) scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .tema-fact span { animation: none; } }
+
+/* Reto «matriz»: 4 cuadros con los ejes ¿se puede? (filas) y ¿vale la pena? (columnas) */
+.matriz-sal { display: grid; grid-template-columns: 56px 1fr 1fr; gap: 12px; margin-top: 18px; }
+.matriz-sal .eje { display: grid; place-items: center; text-align: center; font-weight: 900; letter-spacing: .04em; border-radius: 12px; padding: 6px; background: rgba(255,247,232,.12); border: 2px solid rgba(255,247,232,.35); }
+.matriz-sal .eje small { display: block; font-weight: 700; opacity: .8; letter-spacing: 0; }
+.matriz-sal .eje.no { background: rgba(218,56,50,.2); }
+.matriz-sal .eje.lado { writing-mode: vertical-rl; transform: rotate(180deg); }

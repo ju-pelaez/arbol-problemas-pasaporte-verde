@@ -38,6 +38,7 @@ La historia de **Don Arley** (personaje ficticio) y su lote de cacao rechazado e
 
 - 11 retos en 5 capítulos: **El terreno → El viaje de Don Arley → El tronco → La copa → El fruto (puntos dobles)**.
 - Tipos de juego: escoger la parte del árbol, descubrir qué componente falla, **lluvia de fallas** (clasificar), **armar el problema central** (ordenar), **unir cada raíz con su efecto**, **cómo se lee el árbol** (ordenar).
+- **Sala de factibilidad y viabilidad** (`/factibilidad`): 15 retos en 5 capítulos, en equipos Técnica, Operativa, Económica y Legal. Incluye la **matriz** (4 cuadros: ¿se puede? ¿vale la pena?) en el proyector y en el celular.
 - Puntos: 500 × lo que acertó + hasta 500 por rapidez + 100 por cada acierto seguido.
 - Si a alguien se le cae la conexión o recarga la página, vuelve solo con su nombre y sus puntos.
 - Reacciones (🔥 👏 🌳 😮 😂 💚 🤯 🙌) que suben por el proyector, muro de jugadores, carrera de equipos, podio, premios y confeti.

@@ -137,7 +137,7 @@ function inicio() {
   app.innerHTML = `<div class="inicio">
     ${TEMA === 'factibilidad'
       ? `<h1>Factibilidad <em>y viabilidad</em></h1>
-    <p>12 retos sobre la propuesta del Pasaporte Verde: ¿se <b>puede</b> hacer? ¿<b>vale la pena</b>? Todos responden desde el celular, en 4 equipos: Técnica, Operativa, Económica y Legal.</p>`
+    <p>15 retos sobre la propuesta del Pasaporte Verde: ¿se <b>puede</b> hacer? ¿<b>vale la pena</b>? Todos responden desde el celular, en 4 equipos: Técnica, Operativa, Económica y Legal.</p>`
       : `<h1>Reto del <em>salón</em></h1>
     <p>Todos responden desde el celular, en 4 equipos. Cuando la mayoría acierta, el árbol de problemas crece en el proyector.</p>`}
     <div class="dos">
@@ -383,7 +383,7 @@ function anfitrion() {
     return m;
   };
   const esJuego = r => !!r.correctas;   // unir, ordenar o clasificar
-  const ETIQUETA = { falla: '🍫 El viaje de Don Arley', parte: '🌳 Partes del árbol', clasifica: '🌧️ Lluvia de fallas · en el celular', ordena: '🧩 Ordenar · en el celular', une: '🔗 Unir · en el celular', estudio: '🔧 Las 4 factibilidades', fov: '⚖️ ¿Factible o viable?' };
+  const ETIQUETA = { falla: '🍫 El viaje de Don Arley', parte: '🌳 Partes del árbol', clasifica: '🌧️ Lluvia de fallas · en el celular', ordena: '🧩 Ordenar · en el celular', une: '🔗 Unir · en el celular', estudio: '🔧 Las 4 factibilidades', fov: '⚖️ ¿Factible o viable?', matriz: '⚖️ Matriz: ¿se puede? ¿vale la pena?' };
 
   function siguiente() {
     i++;
@@ -445,6 +445,12 @@ function anfitrion() {
     if (r.tipo === 'ordena') return `<div class="tarea"><div class="fichas">${r.items.map((t, n) => `<div class="ficha" style="animation-delay:${n * 80}ms">${esc(t)}</div>`).join('')}</div></div>`;
     if (r.tipo === 'une') return `<div class="tarea une"><div class="col">${r.izq.map((t, n) => `<div class="ficha izq" style="--c:${COLOR_COMP[n]}">${esc(t)}</div>`).join('')}</div>
       <div class="col">${r.der.map((t, n) => `<div class="ficha" style="animation-delay:${n * 80}ms">${esc(t)}</div>`).join('')}</div></div>`;
+    // Matriz: los 4 cuadros con los ejes (arriba factible / abajo no; izquierda viable / derecha no).
+    if (r.tipo === 'matriz') {
+      const op = k => `<button class="op" data-k="${k}" style="--c:${colorDe(r, k)};animation-delay:${k * 80}ms"><span class="f">${FORMAS[k]}</span>${r.opciones[k].ic} ${esc(r.opciones[k].txt)}<span class="votos"></span><i class="barra"></i></button>`;
+      return `<div class="matriz-sal"><span></span><span class="eje">🌱 VIABLE<small>vale la pena</small></span><span class="eje no">🌱 NO viable<small>no conviene</small></span>
+        <span class="eje lado">🔧 FACTIBLE<small>se puede</small></span>${op(0)}${op(1)}<span class="eje lado no">🔧 NO factible<small>no se puede</small></span>${op(2)}${op(3)}</div>`;
+    }
     return `<div class="ops">${r.opciones.map((o, k) => `<button class="op" data-k="${k}" style="--c:${colorDe(r, k)};animation-delay:${k * 80}ms"><span class="f">${FORMAS[k]}</span>${o.ic ? o.ic + ' ' : ''}${esc(o.txt)}<span class="votos"></span><i class="barra"></i></button>`).join('')}</div>`;
   }
 
