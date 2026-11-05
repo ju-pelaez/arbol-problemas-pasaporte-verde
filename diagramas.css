@@ -1,0 +1,57 @@
+/* Diagramas del juego: DFD (flujo de datos) y DFP (flujo de procesos, estilo Bizagi / BPMN).
+   Usa las mismas variables y el mismo estilo de "calcomanía" del resto del juego. */
+
+/* tarjetas con los símbolos (dentro de las explicaciones de Ceibita) */
+.simgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(min-width:640px){.simgrid.g3{grid-template-columns:repeat(3,1fr)}}
+.simcard{display:grid;justify-items:center;text-align:center;gap:2px;background:#fff;border:2.5px solid var(--ink);border-left:7px solid var(--c,var(--dat));border-radius:12px;padding:6px 8px 8px;font-size:.88rem;line-height:1.25;color:var(--ink)}
+.simcard svg{width:100%;max-width:120px;height:auto}
+.simcard b{font-family:var(--display);font-weight:900;font-size:1rem}
+.simcard span{color:var(--muted)}
+
+/* lienzo donde se arma el diagrama (hoja con cuadrícula, como en un modelador) */
+.dg-prog{height:12px;border:3px solid var(--ink);border-radius:99px;background:#fff;overflow:hidden;margin:4px auto 10px;max-width:520px}
+.dg-prog i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+.dg-lienzo{max-width:520px;margin:10px auto;background:#FFF7E8;color:var(--ink);border:3px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink);padding:8px;
+  background-image:radial-gradient(#E3D9C2 1px,transparent 1px);background-size:16px 16px}
+.dg-lienzo svg{display:block;width:100%;height:auto;font-family:var(--body);-webkit-user-select:none;user-select:none}
+.dg-lienzo .nodo{cursor:pointer;outline:none}
+.dg-lienzo .nodo:focus-visible .marca{stroke:var(--gold);stroke-width:4}
+.dg-lienzo .zona{cursor:pointer;fill:transparent}
+.dg-lienzo .zona:hover{fill:rgba(255,194,61,.22)}
+.dg-lienzo .aparece{animation:dgaparece .4s cubic-bezier(.2,1.4,.4,1);transform-box:fill-box;transform-origin:center}
+@keyframes dgaparece{from{transform:scale(.4);opacity:0}}
+.dg-lienzo .nueva{stroke-dasharray:1;stroke-dashoffset:0;animation:dgtrazo .6s ease-out}
+@keyframes dgtrazo{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.dg-lienzo .nodo.seleccionado .marca{stroke:var(--gold);stroke-width:5}
+
+/* paleta de símbolos (como la barra de Bizagi) */
+.dg-paleta{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:0 0 6px}
+.dg-paleta span{display:inline-flex;align-items:center;gap:4px;background:#fff;border:2px solid #E3D9C2;border-radius:99px;padding:1px 8px 1px 2px;font-size:.74rem;font-weight:700;color:var(--ink)}
+.dg-paleta svg{width:34px;height:20px}
+
+/* leyenda de las flechas del DFD: número y nombre del dato */
+.dg-leyenda{list-style:none;margin:8px 4px 2px;padding:0;display:grid;gap:4px;font-size:.88rem;color:var(--ink)}
+.dg-leyenda li{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;background:#fff;border:2px solid #E3D9C2;border-radius:10px;padding:4px 8px}
+.dg-leyenda li b{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--gold);border:2px solid var(--ink);font-size:.78rem}
+.dg-leyenda li.nuevo{animation:pop .35s}
+.dg-leyenda small{display:block;color:var(--muted)}
+
+/* panel de control: se queda pegado abajo para ver el dibujo mientras respondes */
+.dg-panel{position:sticky;bottom:8px;z-index:5;max-width:520px;margin:10px auto 0;background:rgba(14,52,36,.96);border:3px solid var(--ink);border-radius:16px;padding:10px;display:grid;gap:8px;color:var(--cream)}
+.dg-panel.fin{position:static}
+.dg-q{background:var(--paper);color:var(--ink);border:2.5px solid var(--ink);border-radius:12px;padding:8px 10px;display:grid;gap:2px;justify-items:center;text-align:center}
+.dg-q small{font:700 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dg-q b{font-family:var(--display);font-weight:900;font-size:1.15rem;line-height:1.2}
+.dg-q em{font-style:normal;color:var(--muted);font-size:.85rem}
+.dg-q svg{width:100%;max-width:150px;height:auto}
+.dg-ops{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(135px,1fr))}
+.dg-ops .opt{padding:8px 10px;font-size:.95rem;text-align:center}
+.dg-msg{min-height:2.7em;font-weight:700;font-size:.93rem;line-height:1.3}
+.dg-msg.good{color:#9BF0B8} .dg-msg.bad{color:#FFB3B0}
+.dg-fin{background:var(--paper);color:var(--ink);border:2.5px solid var(--ink);border-radius:12px;padding:10px 12px;font-size:.95rem}
+.dg-fin h4{font-family:var(--display);font-weight:900;font-size:1.1rem;margin:0 0 4px}
+.dg-fin ul{margin:4px 0 0;padding-left:18px}
+.dg-fin li{margin:3px 0}
+.dg-pista{font-size:.95rem;opacity:.9}
+@media(prefers-reduced-motion:reduce){.dg-lienzo .nueva,.dg-lienzo .aparece{animation:none}}

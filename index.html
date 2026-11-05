@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="diagramas.css">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Expedición Árbol de Problemas: un juego para entender el árbol de problemas del Pasaporte Verde del Predio Amazónico por actores, datos, procesos y control.">
 <meta name="theme-color" content="#0E3424">
@@ -435,6 +436,7 @@ body.pausado #step{pointer-events:none}
 <main class="gut"><div class="wrap" id="view"></div></main>
 <div class="ov" id="ov" hidden></div>
 
+<script src="diagramas.js"></script>
 <script>
 /* ---------- pausa del juego ----------
    El botón ⏸ (o la tecla P) congela todo: las animaciones, los relojes de los minijuegos y la voz.
@@ -525,7 +527,7 @@ function leerBloques(bloques){
 // Parte una tarjeta en bloques que se leen por separado: filas, puntos de lista, cajas, párrafos.
 function bloquesDe(card){
   if(!card)return[];
-  const sel='.rows .r, li, .howto > div, .treepic > div, .cmp > div, .two > div, .flow, .dik, .eps, .ctl, .quote, .trunkbox, .big, p, h3';
+  const sel='.rows .r, li, .howto > div, .treepic > div, .cmp > div, .two > div, .simcard, .flow, .dik, .eps, .ctl, .quote, .trunkbox, .big, p, h3';
   const els=[...card.querySelectorAll(sel)];
   const fuera=els.filter(el=>!els.some(o=>o!==el&&o.contains(el)));
   return (fuera.length?fuera:[card]).map(el=>({el,texto:plain(el.innerHTML)})).filter(b=>b.texto);
@@ -706,13 +708,33 @@ entorno:[
 };
 Q.factibilidad=[
 ['¿Qué pregunta la factibilidad?','¿Se puede hacer con los recursos, la tecnología, las personas y las leyes que hay?','¿Cuánto cuesta el cacao en Europa?','¿Quién tiene la culpa del problema?','¿Cuál es el efecto final?','Factible = se puede hacer.'],
-['¿Qué pregunta la viabilidad?','¿Vale la pena y se sostiene en el tiempo?','¿Cuántos actores hay?','¿Qué color tiene cada columna?','¿Dónde va el entorno?','Viable = conviene y dura.'],
+['¿Qué pregunta la viabilidad?','¿Vale la pena y se sostiene en el tiempo?','¿Cuántos actores hay?','¿Qué color tiene cada columna?','¿Dónde va el entorno?','Viable = conviene y se sostiene.'],
 ['¿Por qué la propuesta es factible técnicamente?','Porque los datos ya existen (IDEAM, ICA, ANT, IGAC); falta integrarlos alrededor del predio','Porque hay internet en todas las veredas','Porque el productor ya tiene coordenadas','Porque Europa entrega los datos','No hay que inventar los datos: hay que relacionarlos.'],
 ['¿Qué riesgo técnico hay en el Caquetá?','La conectividad intermitente en las veredas','Que no haya ganado','Que no exista el IDEAM','Que no haya compradores','Por eso el requisito RI-06 pide funcionar sin conexión permanente.'],
 ['¿Qué hace factible la parte operativa?','Acompañar al productor y darle la información en su lenguaje','Obligar al productor a aprender inglés','Quitarle la finca','Que lo haga solo la Unión Europea','Requisito RI-07: lenguaje comprensible. Y las asociaciones acompañan.'],
 ['¿Quién certifica que un predio está libre de deforestación?','La autoridad competente: el sistema informa y documenta','El mismo sistema','El comprador europeo','Cualquier vecino','Regla R-03 de la propuesta.'],
 ['¿Qué ley protege la información del predio en Colombia?','La Ley 1581 de 2012 (habeas data)','El Código de Tránsito','La Ley de Víctimas','Ninguna','La información del productor se comparte solo con su autorización (requisito RI-09).'],
 ['¿Por qué el proyecto es viable ahora?','Porque hay necesidad real y las fechas del reglamento ya están encima','Porque hacer apps es barato','Porque el árbol lo dice','Porque no tiene riesgos','30-12-2026 para grandes y medianos; 30-06-2027 para micro y pequeños.']];
+Q.dfd=[
+['¿Qué dibuja un DFD?','Cómo viajan los datos: de dónde vienen, qué proceso los transforma, dónde se guardan y a dónde van','Quién hace cada tarea y en qué orden','Las causas y los efectos de un problema','Las redes de computadores del sistema','El DFD sigue a los datos. El orden y los responsables los muestra el DFP.'],
+['¿Qué es una entidad externa en un DFD?','Quien da o recibe datos pero está fuera del sistema, como el comprador','Un proceso que transforma datos','Un lugar donde se guardan los datos','Una flecha con nombre','Se dibuja como un rectángulo y solo entrega o recibe datos.'],
+['¿Qué va escrito en cada flecha de un DFD?','El nombre del dato que viaja','Un verbo, como “acopiar”','El nombre de quien lo hace','La hora en que ocurre','La flecha es un dato en movimiento: “Lote y volumen”, no “acopiar”.'],
+['¿Cuál de estas flechas NO es válida en un DFD?','Del Productor directamente al almacén “Registros de acopio”','Del Productor al proceso “Acopiar”','Del proceso “Acopiar” al almacén “Registros de acopio”','Del almacén “Documentos del predio” al proceso “Acreditar el origen”','Una entidad no escribe en un almacén: entre las dos tiene que haber un proceso.'],
+['En un DFD, ¿qué es un almacén de datos?','Donde los datos quedan guardados: una carpeta, un archivo o un registro','Quien pide los datos','Una actividad que alguien hace','Una decisión','En el AS-IS son los registros que existen hoy, no una base de datos nueva.'],
+['¿Qué es un proceso en un DFD?','Algo que recibe datos, los transforma y entrega otros datos','Una persona o una empresa','Un archivo','Una flecha','Un proceso siempre tiene entrada y salida. Si no tiene salida, es un “agujero negro”.'],
+['El DFD del Pasaporte Verde se dibuja…','Con el sistema como funciona HOY (AS-IS), sin base de datos ni apps nuevas','Con la app ya construida','Solo después de programar','Con la solución propuesta','Igual que el árbol de problemas: primero se entiende el mundo real.'],
+['¿Qué dato falta en el DFD de hoy para que la evidencia salga completa?','La ubicación y la cobertura boscosa de cada predio no llegan al proceso de acreditar','El nombre del comprador','El precio del cacao en Europa','El color de los costales','El dato ambiental existe a escala agregada, pero no llega por predio a quien acredita.'],
+['¿Cuál es la salida que falla en el DFD del sistema?','La evidencia de origen, que sale incompleta de “Acreditar el origen”','El pedido del comprador','El producto cosechado','La carpeta del predio','Es la misma salida 2 del modelo: evidencia incompleta o inexistente.']];
+Q.dfp=[
+['¿Qué dibuja un DFP?','Quién hace qué, en qué orden y con qué decisiones','Cómo viajan los datos entre almacenes','Las causas del problema central','Los efectos del árbol','Es el diagrama del proceso paso a paso. Se modela con BPMN, por ejemplo en Bizagi.'],
+['¿Qué es Bizagi Modeler?','Un programa para dibujar procesos con la notación BPMN','Una base de datos','Un navegador de internet','Un lenguaje de programación','Sirve para modelar procesos: tareas, decisiones y responsables.'],
+['¿Qué símbolo de BPMN es una decisión?','La compuerta: un rombo con una X','El círculo de borde delgado','El rectángulo redondeado','La flecha continua','De la compuerta salen caminos, como Sí y No.'],
+['¿Qué significa el círculo de borde grueso?','El evento de fin: aquí termina un camino del proceso','El inicio del proceso','Una tarea','Una decisión','El inicio tiene el borde delgado; el fin, grueso.'],
+['¿Para qué sirven los carriles de un diagrama BPMN?','Para mostrar quién hace cada tarea','Para dibujar las flechas','Para guardar datos','Para medir el tiempo','Cada carril es un actor: la tarea va en el carril de quien la hace.'],
+['En el DFP del Pasaporte Verde, ¿en qué carril va “Acopiar en un lote”?','Acopiador / asociación','Productor','Comprador','Entidad de registro','El acopiador junta el producto de muchos predios en un lote.'],
+['¿Qué decide la compuerta “¿Evidencia completa?”','Si el lote se paga completo o se castiga o se rechaza','Dónde queda el predio','Cuánto cuesta el cacao','Quién es el productor','Si la respuesta es “No”, el lote pierde precio o acceso: es un efecto del árbol.'],
+['¿Cuál es la diferencia entre DFD y DFP?','El DFD sigue los datos; el DFP sigue las tareas, los responsables y el orden','Ninguna, son iguales','El DFD es para el campo y el DFP para la oficina','El DFD usa carriles y el DFP usa almacenes','Se complementan: datos y procesos son dos columnas del sistema.'],
+['¿Con qué estado del sistema se dibuja el DFP en esta clase?','Con el proceso como funciona hoy (AS-IS), incluso lo que sale mal','Con el proceso ideal del futuro','Con la app ya terminada','No se dibuja','El árbol es mundo real; el DFP muestra dónde falla el proceso de hoy.']];
 const QBYID={};
 Object.entries(Q).forEach(([k,arr])=>arr.forEach((r,i)=>{QBYID[k+'-'+i]={id:k+'-'+i,q:r[0],a:r[1],w:r.slice(2,5),why:r[5],bank:k}}));
 const qsOf=(bank,n)=>shuffle(Q[bank].map((_,i)=>QBYID[bank+'-'+i])).slice(0,n||99);
@@ -874,7 +896,7 @@ const MISSIONS=[
 
 {id:'factibilidad',icon:'⚖️',k:'trk',title:'Factibilidad y viabilidad',sub:'¿Se puede hacer? ¿Vale la pena?',mon:['El Imposible','#8A5A2B'],steps:[
  {t:'talk',mood:'happy',say:'El árbol analiza el **problema**. Ahora miramos la **propuesta** del Pasaporte Verde con dos preguntas de analista: ¿se **puede** hacer? ¿**vale la pena**?',
-  card:`${rows([['Factibilidad','¿Se PUEDE hacer con los recursos, la tecnología, las personas y las leyes que hay? Se revisa en cuatro partes: técnica, operativa, económica y legal.','dat'],['Viabilidad','¿VALE LA PENA y se SOSTIENE en el tiempo? ¿Hay necesidad real, es el momento, tiene impacto?','act']])}<p class="quote" style="margin-top:8px">Truco: factible = <b>se puede</b> · viable = <b>conviene y dura</b>.</p>`},
+  card:`${rows([['Factibilidad','¿Se PUEDE hacer con los recursos, la tecnología, las personas y las leyes que hay? Se revisa en cuatro partes: técnica, operativa, económica y legal.','dat'],['Viabilidad','¿VALE LA PENA y se SOSTIENE en el tiempo? ¿Hay necesidad real, es el momento, tiene impacto?','act']])}<p class="quote" style="margin-top:8px">Truco: factible = <b>se puede</b> · viable = <b>conviene y se sostiene</b>.</p>`},
  {t:'talk',mood:'think',say:'Primero, ¿qué **propone** el Pasaporte Verde? No es una app: son **lineamientos** de cómo debe comportarse el sistema.',
   card:rows([['L-01 · El dato nace en el predio','La información se genera donde ocurre la producción.','pro'],['L-02 · Integración de fuentes','Lo ambiental, lo sanitario y lo predial se relacionan alrededor del predio.','pro'],['L-03 · Traducción del requisito','La exigencia se explica en el lenguaje del productor.','pro'],['L-04 · Sin conexión permanente','El proceso funciona con señal intermitente.','pro'],['L-05 · Trazabilidad verificable','Todo resultado se puede reconstruir desde sus fuentes.','pro'],['L-06 · Agregación por lote','Se consolida el estado de todos los predios de un lote.','pro'],['L-07 · Medición del sistema','El sistema produce sus propios indicadores.','pro']])},
  {t:'talk',mood:'wow',say:'**Factibilidad técnica**: ¿hay datos y tecnología para hacerlo?',
@@ -894,6 +916,49 @@ const MISSIONS=[
   {text:'¿Reduce el costo de acreditar el origen?',b:'eco'},{text:'¿Cuesta menos que las ventas que hoy se pierden?',b:'eco'},
   {text:'¿Cumple el Reglamento (UE) 2023/1115?',b:'leg'},{text:'¿Respeta la Ley 1581 de datos personales?',b:'leg'}]},
  {t:'battle',bank:'factibilidad'}]},
+{id:'dfd',icon:'🗺️',k:'dat',title:'DFD · Flujo de datos',sub:'Qué datos entran, se guardan y salen',mon:['El Dato Perdido','#2B7BB9'],steps:[
+ {t:'talk',mood:'wow',say:'Ahora aprendemos a **dibujar** el sistema. Primero el **DFD**: el diagrama de **flujo de datos**. Muestra cómo **viajan los datos**.',
+  card:rows([['DFD · flujo de datos','¿Qué datos entran, dónde se guardan y a dónde salen? Es la columna de <b>Datos</b>.','dat'],['DFP · flujo de procesos','¿Qué pasos, decisiones y responsables hay, y en qué orden? Es la columna de <b>Procesos</b>.','pro']])+`<p class="quote" style="margin-top:8px">El DFD sigue a los <b>datos</b>. El DFP sigue a las <b>tareas</b>.</p>`},
+ {t:'talk',mood:'happy',say:'El DFD tiene solo **4 símbolos**.',card:DG.tarjetaDfd()+`<p class="muted" style="margin-top:8px">En otros libros el proceso es un rectángulo redondeado. Lo importante es lo que significa.</p>`},
+ {t:'talk',mood:'think',say:'Y **4 reglas de oro** para que no te regañen.',
+  card:list(['Todo flujo <b>sale de un proceso o llega a uno</b>. Los datos no se mueven solos.','Cada flecha lleva el <b>nombre de un dato</b>, no un verbo.','Un proceso siempre tiene <b>entrada y salida</b>.','Dos almacenes, dos entidades, o una entidad y un almacén <b>nunca se conectan directo</b>: en medio va un proceso.'])},
+ {t:'talk',mood:'happy',say:'El **nivel 0** es el diagrama de **contexto**: todo el sistema es un solo proceso rodeado de entidades.',
+  card:rows([['Productor → sistema','Datos y documentos del predio, producto cosechado','dat'],['Entidades de registro → sistema','Registros sanitarios y de tierra (ICA, ANT, IGAC)','dat'],['Comprador → sistema','Exigencia y pedido','dat'],['Sistema → Comprador','Producto y evidencia de origen','dat']])},
+ {t:'talk',mood:'wow',say:'En el **nivel 1** abrimos la caja y vemos **4 procesos** y **2 almacenes**.',
+  card:rows([['Procesos','Documentar el predio · Acopiar el producto · Acreditar el origen · Comercializar','pro'],['Almacenes','Documentos del predio · Registros de acopio','dat'],['Entidades','Productor · Entidades de registro · Comprador','act']])},
+ {t:'talk',mood:'think',btn:'¡A construir!',say:'Ojo: es el sistema de **HOY** (AS-IS). Los almacenes son carpetas y registros que ya existen, **no** una base de datos nueva.',
+  card:`<div class="two"><div class="no"><b>❌ Mundo de la solución</b><br>"Base de datos en la nube del Pasaporte Verde."</div><div class="yes"><b>✅ Mundo real</b><br>"Carpeta del predio" y "Registros de acopio", como están hoy.</div></div>`},
+ {t:'dfd'},
+ {t:'match',title:'Une cada símbolo del DFD con su significado',pairs:[['Entidad externa','Da o recibe datos fuera del sistema'],['Proceso','Transforma datos que entran en datos que salen'],['Almacén de datos','Donde los datos quedan guardados'],['Flujo de datos','Flecha con el nombre del dato']]},
+ {t:'tf',title:'¿Verdadero o falso? Reglas del DFD',items:[
+  ['Una flecha del DFD puede ir directo de una entidad a un almacén.',false,'Entre los dos siempre va un proceso.'],
+  ['En una flecha se escribe el nombre del dato que viaja.',true,'Por ejemplo: “Lote y volumen”.'],
+  ['“Acopiar el producto” es un almacén de datos.',false,'Es un proceso: lleva un verbo y transforma datos.'],
+  ['En el DFD del AS-IS los almacenes son una base de datos nueva.',false,'Son los registros y carpetas que existen hoy.'],
+  ['El comprador es una entidad externa.',true,'Da el pedido y recibe el producto, pero está fuera del sistema.'],
+  ['Un proceso puede no tener ninguna salida.',false,'Un proceso siempre transforma: tiene entrada y salida.']]},
+ {t:'battle',bank:'dfd'}]},
+
+{id:'dfp',icon:'🔷',k:'pro',title:'DFP · Flujo de procesos tipo Bizagi',sub:'Carriles, tareas y decisiones (BPMN)',mon:['El Cuello de Botella','#B5461F'],steps:[
+ {t:'talk',mood:'wow',say:'Ahora el **DFP**: el diagrama de **flujo de procesos**. Dice **quién hace qué y en qué orden**. Los analistas lo dibujan con **BPMN** en programas como **Bizagi Modeler**.',
+  card:rows([['DFP · flujo de procesos','Tareas, decisiones, responsables y el orden en que pasan.','pro'],['DFD · flujo de datos','Cómo viajan los datos entre procesos y almacenes.','dat']])+`<p class="quote" style="margin-top:8px">Si el árbol dice <b>qué falla</b>, el DFP muestra <b>dónde</b> falla el proceso.</p>`},
+ {t:'talk',mood:'happy',say:'Estos son los **símbolos de BPMN**. Son los mismos que ves en Bizagi.',card:DG.tarjetaBpmn()},
+ {t:'talk',mood:'think',say:'Un diagrama de Bizagi se lee por **carriles**: cada carril es un **actor**.',
+  card:rows([['Productor','Documenta el predio y mueve el cacao','act'],['Acopiador / asociación','Junta el lote, acredita el origen y entrega la evidencia','pro'],['Comprador','Revisa la evidencia, paga o castiga el precio','dat']])+`<p class="quote" style="margin-top:8px">La tarea va en el carril de <b>quien la hace</b>. Cuando la flecha cruza de carril, el trabajo pasa de un actor a otro.</p>`},
+ {t:'talk',mood:'happy',say:'Este es el proceso que vas a dibujar, en orden:',
+  card:`${flow(['Cosecha lista','Documentar','Movilizar','Acopiar','Acreditar origen','Entregar evidencia','¿Evidencia completa?'],'plain')}<p class="quote" style="margin-top:8px">Si la respuesta es <b>Sí</b>, pagan el precio completo. Si es <b>No</b>, castigan el precio o rechazan el lote.</p>`},
+ {t:'talk',mood:'think',btn:'¡A modelar!',say:'Igual que el árbol, el DFP es **AS-IS**: se dibuja como pasa **hoy**, incluso el camino malo. No se arregla en el dibujo.',
+  card:`<div class="two"><div class="no"><b>❌ Proceso soñado</b><br>"Con la app, el productor entrega todo al instante."</div><div class="yes"><b>✅ Proceso real</b><br>Con su compuerta «¿Evidencia completa?» y su camino «No».</div></div>`},
+ {t:'bpmn'},
+ {t:'match',title:'Une cada símbolo de BPMN con su significado',pairs:[['Evento de inicio','Círculo de borde delgado'],['Tarea','Rectángulo redondeado'],['Compuerta','Rombo con X: una decisión'],['Evento de fin','Círculo de borde grueso'],['Carril','El actor que hace las tareas']]},
+ {t:'tf',title:'¿Verdadero o falso? Bizagi y BPMN',items:[
+  ['Bizagi Modeler sirve para dibujar procesos con BPMN.',true,'Es el programa que usan los analistas para esto.'],
+  ['Una compuerta es una tarea.',false,'Es una decisión: de ahí salen caminos como Sí y No.'],
+  ['Cada carril muestra qué actor hace cada tarea.',true,'La tarea va en el carril de quien la hace.'],
+  ['El evento de fin se dibuja con el borde delgado.',false,'El de fin es grueso; el de inicio es delgado.'],
+  ['“Acopiar en un lote” va en el carril del Comprador.',false,'Va en el carril del acopiador o la asociación.'],
+  ['El DFP de esta clase muestra el proceso de HOY (AS-IS).',true,'Incluye el camino malo: el lote castigado o rechazado.']]},
+ {t:'battle',bank:'dfp'}]},
 {id:'jefe',icon:'👑',k:'efe',boss:true,title:'Jefe final: arma tu árbol',sub:'Todo junto, como en la exposición',mon:['El Gran Desarticulado','#5E3A8C'],steps:[
  {t:'talk',mood:'wow',say:'¡Llegaste al **jefe final**! Primero arma las **raíces**: las 12 causas en sus 4 columnas.',
   card:`<p>Sin mirar. Si dudas, piensa en la pregunta de cada columna:</p>${cmp({act:C.act.q,dat:C.dat.q,pro:C.pro.q,con:C.con.q})}`},
@@ -905,7 +970,7 @@ const MISSIONS=[
 ];
 const MBYID=Object.fromEntries(MISSIONS.map(m=>[m.id,m]));
 // Orden del camino: las misiones siguen la historia de Don Arley (los capítulos van entre ellas).
-const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','control','arbol','problema','efectos','entorno','factibilidad','jefe'];
+const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','dfd','dfp','control','arbol','problema','efectos','entorno','factibilidad','jefe'];
 MISSIONS.sort((a,b)=>ORDEN_MISIONES.indexOf(a.id)-ORDEN_MISIONES.indexOf(b.id));
 
 /* ================= vistas ================= */
@@ -1570,7 +1635,7 @@ const FACTS=[
 const CAPS={viaje:{icon:'🎬',label:'El viaje del lote'},camino:{icon:'🛤️',label:'Revisar el camino'},arbol:{icon:'🌳',label:'Nace el árbol'},otro:{icon:'📚',label:'Otro sistema'},reto:{icon:'🏆',label:'Demuéstralo'}};
 const STATIONS=(()=>{
   const m=id=>{const x=MBYID[id];return{kind:'m',id,icon:x.icon,label:x.title,k:x.k}},c=id=>({kind:'cap',id,icon:CAPS[id].icon,label:CAPS[id].label,k:'efe'});
-  const all=[c('viaje'),m('sistema'),m('modelo'),c('camino'),m('actores'),m('datos'),m('procesos'),m('control'),{kind:'x',id:'mover',icon:'🕺',label:'Ceibita dice',k:'pro'},
+  const all=[c('viaje'),m('sistema'),m('modelo'),c('camino'),m('actores'),m('datos'),m('procesos'),m('dfd'),m('dfp'),m('control'),{kind:'x',id:'mover',icon:'🕺',label:'Ceibita dice',k:'pro'},
     c('arbol'),m('arbol'),m('problema'),m('efectos'),m('entorno'),c('otro'),c('reto'),m('factibilidad'),m('jefe')];
   return all.map((s,i)=>({...s,x:380+i*460}))})();
 const W_END=STATIONS[STATIONS.length-1].x+720;
@@ -1842,6 +1907,10 @@ RUN.build=(host,st,ctx,done)=>{
   tray();
   $('#nx',host).onclick=()=>{tone('tap');done()};
 };
+
+/* ---------- diagramas: DFD y DFP tipo Bizagi (ver diagramas.js) ---------- */
+RUN.dfd=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.DFD_CFG);
+RUN.bpmn=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.BP_CFG);
 
 /* ---------- pasos nuevos dentro de las misiones ---------- */
 function addBefore(mid,step){const s=MBYID[mid].steps,bi=s.findIndex(x=>x.t==='battle');s.splice(bi<0?s.length:bi,0,step)}

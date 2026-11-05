@@ -140,7 +140,7 @@ function armarRetosFactibilidad() {
     porque: { tec: 'Es sobre datos y tecnología, ¿hay con qué hacerlo? TÉCNICA.', ope: 'Es sobre las personas, ¿lo usarían y lo pueden manejar? OPERATIVA.',
       eco: 'Es sobre costos y beneficios, ¿cuesta menos de lo que ahorra? ECONÓMICA.', leg: 'Es sobre leyes y normas, ¿lo permite la ley? LEGAL.' }[k], pieza });
   const fov = (texto, correcta, porque, pieza) => ({ tipo: 'fov', titulo: '¿Factible o viable?', texto,
-    opciones: [{ txt: 'Factible: ¿se PUEDE hacer?', ic: '🔧' }, { txt: 'Viable: ¿VALE LA PENA y dura?', ic: '🌱' }], correcta, porque, pieza });
+    opciones: [{ txt: 'Factible: ¿se PUEDE hacer?', ic: '🔧' }, { txt: 'Viable: ¿VALE LA PENA y se sostiene?', ic: '🌱' }], correcta, porque, pieza });
   // Las opciones se barajan para que la correcta no quede siempre en el mismo lugar.
   const pregunta = (texto, opciones, porque, pieza) => { const ops = barajar(opciones);
     return { tipo: 'pregunta', titulo: 'Factibilidad y viabilidad', texto, opciones: ops.map(t => ({ txt: t, ic: '' })), correcta: ops.indexOf(opciones[0]), porque, pieza }; };
