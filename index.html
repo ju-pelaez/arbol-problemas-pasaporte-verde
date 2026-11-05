@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="diagramas.css">
+<link rel="stylesheet" href="factibilidad.css">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Expedición Árbol de Problemas: un juego para entender el árbol de problemas del Pasaporte Verde del Predio Amazónico por actores, datos, procesos y control.">
 <meta name="theme-color" content="#0E3424">
@@ -437,6 +438,7 @@ body.pausado #step{pointer-events:none}
 <div class="ov" id="ov" hidden></div>
 
 <script src="diagramas.js"></script>
+<script src="factibilidad.js"></script>
 <script>
 /* ---------- pausa del juego ----------
    El botón ⏸ (o la tecla P) congela todo: las animaciones, los relojes de los minijuegos y la voz.
@@ -896,7 +898,8 @@ const MISSIONS=[
 
 {id:'factibilidad',icon:'⚖️',k:'trk',title:'Factibilidad y viabilidad',sub:'¿Se puede hacer? ¿Vale la pena?',mon:['El Imposible','#8A5A2B'],steps:[
  {t:'talk',mood:'happy',say:'El árbol analiza el **problema**. Ahora miramos la **propuesta** del Pasaporte Verde con dos preguntas de analista: ¿se **puede** hacer? ¿**vale la pena**?',
-  card:`${rows([['Factibilidad','¿Se PUEDE hacer con los recursos, la tecnología, las personas y las leyes que hay? Se revisa en cuatro partes: técnica, operativa, económica y legal.','dat'],['Viabilidad','¿VALE LA PENA y se SOSTIENE en el tiempo? ¿Hay necesidad real, es el momento, tiene impacto?','act']])}<p class="quote" style="margin-top:8px">Truco: factible = <b>se puede</b> · viable = <b>conviene y se sostiene</b>.</p>`},
+  card:`${rows([['Factibilidad','¿Se PUEDE hacer con los recursos, la tecnología, las personas y las leyes que hay? Se revisa en cuatro partes: técnica, operativa, económica y legal.','dat'],['Viabilidad','¿VALE LA PENA y se SOSTIENE en el tiempo? ¿Hay necesidad real, es el momento, tiene impacto?','act']])}<p class="quote" style="margin-top:8px">Truco: factible = <b>se puede</b> · viable = <b>vale la pena y se sostiene</b>.</p><p style="margin-top:8px">🧥 Vender abrigos de lana en Florencia <b>se puede</b> (es factible), pero con este calor <b>no conviene</b> (no es viable).</p>`,btn:'¡Al reto! ⚖️'},
+ {t:'matriz'},
  {t:'talk',mood:'think',say:'Primero, ¿qué **propone** el Pasaporte Verde? No es una app: son **lineamientos** de cómo debe comportarse el sistema.',
   card:rows([['L-01 · El dato nace en el predio','La información se genera donde ocurre la producción.','pro'],['L-02 · Integración de fuentes','Lo ambiental, lo sanitario y lo predial se relacionan alrededor del predio.','pro'],['L-03 · Traducción del requisito','La exigencia se explica en el lenguaje del productor.','pro'],['L-04 · Sin conexión permanente','El proceso funciona con señal intermitente.','pro'],['L-05 · Trazabilidad verificable','Todo resultado se puede reconstruir desde sus fuentes.','pro'],['L-06 · Agregación por lote','Se consolida el estado de todos los predios de un lote.','pro'],['L-07 · Medición del sistema','El sistema produce sus propios indicadores.','pro']])},
  {t:'talk',mood:'wow',say:'**Factibilidad técnica**: ¿hay datos y tecnología para hacerlo?',
@@ -905,16 +908,16 @@ const MISSIONS=[
   card:rows([['El productor','Necesita la información en su lenguaje (RI-07), no en términos técnicos.','act'],['Las asociaciones','El Comité de Ganaderos y ASOHECA pueden acompañar el registro de muchos predios.','act'],['La confianza','La información del predio es del productor y solo se comparte con su autorización (RI-09).','act'],['Conclusión','Es factible si se acompaña al productor y se respeta su información.','act']])},
  {t:'talk',mood:'think',say:'**Factibilidad económica**: ¿cuesta menos de lo que ahorra o de lo que hoy se pierde?',
   card:`${rows([['Hoy','Acreditar el origen es lento, caro y depende de intermediarios; el costo cae en el más débil.','con'],['Con la propuesta','Se reutilizan fuentes públicas que ya existen: no hay que producir los datos desde cero.','con'],['Criterios de la propuesta','Menos tiempo ↓, menos costo ↓ y más productores con acceso al mercado ↑.','con'],['Conclusión','Es factible económicamente si reduce costo y tiempo frente a las ventas que hoy se pierden.','con']])}<p class="quote" style="margin-top:8px">La propuesta no fija un presupuesto en pesos: la factibilidad económica se evalúa con estos criterios de solución óptima.</p>`},
- {t:'talk',mood:'wow',say:'**Factibilidad legal**: ¿lo permite y lo pide la ley?',
+ {t:'talk',mood:'wow',btn:'¡A jugar!',say:'**Factibilidad legal**: ¿lo permite y lo pide la ley?',
   card:rows([['Reglamento (UE) 2023/1115','Exige la ubicación de cada parcela y que no haya deforestación después del 31-12-2020.','pro'],['Las fechas','30-12-2026 para grandes y medianos; 30-06-2027 para micro y pequeños.','pro'],['¿Quién certifica?','La autoridad competente. El sistema informa y documenta, no certifica (regla R-03).','pro'],['Datos personales','Ley 1581 de 2012 (habeas data): la información del predio se comparte solo con autorización.','pro']])},
- {t:'talk',mood:'happy',btn:'¡A jugar!',say:'Y la **viabilidad**: ¿vale la pena y se sostiene en el tiempo?',
-  card:rows([['Necesidad real','Los compradores europeos ya piden coordenadas, imágenes satelitales y documentos.','efe'],['Es el momento','Las fechas del reglamento ya están encima.','efe'],['Impacto','Que el pequeño productor no quede excluido y que no se amplíe la frontera agrícola.','efe'],['Riesgos','La señal en el campo, la confianza del productor y que las entidades mantengan sus datos al día.','efe'],['Conclusión','Es viable: hay necesidad, hay fecha y hay fuentes. Hay que cuidar los riesgos.','efe']])},
- {t:'match',title:'Une cada estudio con su pregunta',pairs:[['Técnica','¿Hay datos y tecnología?'],['Operativa','¿La gente lo usaría?'],['Económica','¿Cuesta menos de lo que ahorra?'],['Legal','¿Lo permite la ley?'],['Viabilidad','¿Vale la pena y se sostiene?']]},
  {t:'sort',title:'¿Qué factibilidad revisa cada pregunta?',buckets:[B('tec','🛠️ Técnica','dat'),B('ope','👥 Operativa','act'),B('eco','💰 Económica','con'),B('leg','⚖️ Legal','pro')],items:[
   {text:'¿Funciona sin señal permanente?',b:'tec'},{text:'¿Se pueden unir los datos del IDEAM, el ICA y la ANT?',b:'tec'},
   {text:'¿El productor entiende lo que le muestra?',b:'ope'},{text:'¿Las asociaciones pueden acompañar el registro?',b:'ope'},
   {text:'¿Reduce el costo de acreditar el origen?',b:'eco'},{text:'¿Cuesta menos que las ventas que hoy se pierden?',b:'eco'},
   {text:'¿Cumple el Reglamento (UE) 2023/1115?',b:'leg'},{text:'¿Respeta la Ley 1581 de datos personales?',b:'leg'}]},
+ {t:'talk',mood:'happy',btn:'¡A jugar!',say:'Y la **viabilidad**: ¿vale la pena y se sostiene en el tiempo?',
+  card:rows([['Necesidad real','Los compradores europeos ya piden coordenadas, imágenes satelitales y documentos.','efe'],['Es el momento','Las fechas del reglamento ya están encima.','efe'],['Impacto','Que el pequeño productor no quede excluido y que no se amplíe la frontera agrícola.','efe'],['Riesgos','La señal en el campo, la confianza del productor y que las entidades mantengan sus datos al día.','efe'],['Conclusión','Es viable: hay necesidad, hay fecha y hay fuentes. Hay que cuidar los riesgos.','efe']])},
+ {t:'match',title:'Une cada estudio con su pregunta',pairs:[['Técnica','¿Hay datos y tecnología?'],['Operativa','¿La gente lo usaría?'],['Económica','¿Cuesta menos de lo que ahorra?'],['Legal','¿Lo permite la ley?'],['Viabilidad','¿Vale la pena y se sostiene?']]},
  {t:'battle',bank:'factibilidad'}]},
 {id:'dfd',icon:'🗺️',k:'dat',title:'DFD · Flujo de datos',sub:'Qué datos entran, se guardan y salen',mon:['El Dato Perdido','#2B7BB9'],steps:[
  {t:'talk',mood:'wow',say:'Ahora aprendemos a **dibujar** el sistema. Primero el **DFD**: el diagrama de **flujo de datos**. Muestra cómo **viajan los datos**.',
@@ -1911,6 +1914,7 @@ RUN.build=(host,st,ctx,done)=>{
 /* ---------- diagramas: DFD y DFP tipo Bizagi (ver diagramas.js) ---------- */
 RUN.dfd=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.DFD_CFG);
 RUN.bpmn=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.BP_CFG);
+RUN.matriz=(host,st,ctx,done)=>MATRIZ.jugar(host,ctx,done);   // reto de factibilidad y viabilidad (factibilidad.js)
 
 /* ---------- pasos nuevos dentro de las misiones ---------- */
 function addBefore(mid,step){const s=MBYID[mid].steps,bi=s.findIndex(x=>x.t==='battle');s.splice(bi<0?s.length:bi,0,step)}

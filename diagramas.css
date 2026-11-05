@@ -55,3 +55,31 @@
 .dg-fin li{margin:3px 0}
 .dg-pista{font-size:.95rem;opacity:.9}
 @media(prefers-reduced-motion:reduce){.dg-lienzo .nueva,.dg-lienzo .aparece{animation:none}}
+
+/* ---------- jugo: marcador, combo, celebraciones y pistas ---------- */
+.dg-marcador{display:flex;justify-content:center;gap:10px;max-width:520px;margin:0 auto 6px;min-height:34px}
+.dg-marcador span:empty{display:none}
+.dg-pts,.dg-combo{background:var(--paper);color:var(--ink);border:2.5px solid var(--ink);border-radius:99px;box-shadow:0 3px 0 var(--ink);padding:3px 12px;font:900 .95rem var(--display);font-variant-numeric:tabular-nums}
+.dg-combo{background:var(--gold)}
+.dg-combo.late{animation:dglate .35s cubic-bezier(.2,1.6,.4,1)}
+.dg-combo.caliente{background:#FF7A45;color:#fff;box-shadow:0 3px 0 var(--ink),0 0 18px #FFB347}
+@keyframes dglate{40%{transform:scale(1.25) rotate(-4deg)}}
+.dg-cartel{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:80;pointer-events:none;display:grid;gap:4px;text-align:center;
+  background:var(--gold);color:var(--ink);border:4px solid var(--ink);border-radius:22px;box-shadow:0 8px 0 var(--ink);padding:16px 26px;
+  animation:dgcartel 1.7s cubic-bezier(.2,1.4,.4,1) forwards;width:max-content;max-width:90vw}
+.dg-cartel b{font:900 clamp(1.5rem,6vw,2.3rem) var(--display);line-height:1.1}
+.dg-cartel span{font-weight:700}
+@keyframes dgcartel{0%{transform:translate(-50%,-50%) scale(.3) rotate(-8deg);opacity:0}18%{transform:translate(-50%,-50%) scale(1.08) rotate(2deg);opacity:1}
+  30%,80%{transform:translate(-50%,-50%) scale(1) rotate(0)}100%{transform:translate(-50%,-80%) scale(.9);opacity:0}}
+.dg-flota{position:fixed;z-index:75;pointer-events:none;transform:translateX(-50%);font:900 1.4rem var(--display);color:var(--gold);-webkit-text-stroke:1.2px var(--ink);animation:dgflota .9s ease-out forwards}
+@keyframes dgflota{to{transform:translate(-50%,-60px) scale(1.2);opacity:0}}
+.dg-ops .opt.pista{animation:dgbrilla 1s ease-in-out infinite;border-color:var(--gold)}
+@keyframes dgbrilla{50%{box-shadow:0 4px 0 var(--ink),0 0 0 5px var(--gold)}}
+.dg-lienzo .nodo.pista .marca{animation:dgpulso 1s ease-in-out infinite}
+.dg-lienzo .nodo.seleccionado .marca{animation:dgpulso .8s ease-in-out infinite}
+@keyframes dgpulso{50%{stroke:var(--gold);stroke-width:7}}
+.dg-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dg-resumen span{display:grid;justify-items:center;background:var(--paper);color:var(--muted);border:2.5px solid var(--ink);border-radius:12px;padding:6px 4px;font-size:.78rem;font-weight:700;animation:pop .4s backwards}
+.dg-resumen span:nth-child(2){animation-delay:.12s} .dg-resumen span:nth-child(3){animation-delay:.24s}
+.dg-resumen b{font:900 1.35rem var(--display);color:var(--ink)}
+@media(prefers-reduced-motion:reduce){.dg-cartel,.dg-flota,.dg-combo.late,.dg-ops .opt.pista,.dg-lienzo .nodo.pista .marca,.dg-lienzo .nodo.seleccionado .marca{animation:none}}

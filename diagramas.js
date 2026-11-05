@@ -41,7 +41,45 @@ const SIM={
   seq:sv(`<path d="M12 35H92" stroke="${INK}" stroke-width="3.5"/><path d="M90 25L110 35L90 45Z" fill="${INK}"/>`),
   car:sv(`<rect x="12" y="10" width="96" height="50" fill="#FCE6D3" stroke="${INK}" stroke-width="3"/><rect x="12" y="10" width="22" height="50" fill="#D0661C" stroke="${INK}" stroke-width="3"/><path d="M44 28H98M44 42H80" stroke="${GRIS}" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 8"/>`)
 };
+// Bolita que viaja por una flecha: una vez cuando se dibuja, y sin parar al terminar el diagrama.
+function paquete(d,nueva,fin,k){
+  if(MOV_REDUCIDO()||!(nueva||fin))return '';
+  const anim=fin?`<animateMotion dur="1.8s" begin="${(k*.22).toFixed(2)}s" repeatCount="indefinite" path="${d}"/>`
+    :`<animateMotion dur=".75s" fill="freeze" path="${d}"/><animate attributeName="opacity" from="1" to="0" begin=".7s" dur=".35s" fill="freeze"/>`;
+  return `<circle r="6" fill="#FFC23D" stroke="${INK}" stroke-width="2" pointer-events="none">${anim}</circle>`;
+}
 const simCard=(t,n,d,color)=>`<div class="simcard" style="--c:${color}">${SIM[t]}<b>${n}</b><span>${d}</span></div>`;
+
+/* ---------- "jugo": sonidos, combos y celebraciones que enganchan ----------
+   Cada acierto seguido sube el tono (como una escalera musical), cada error sacude,
+   y cada paso superado tiene su propia fiesta. Se usa en los diagramas y en la matriz. */
+const MOV_REDUCIDO=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+const JUGO={
+  // Sonido de acierto: entre más largo el combo, más agudo y brillante.
+  chispa(n){
+    if(!S.fx)return;const a=ac();if(!a)return;
+    const base=440*Math.pow(2,Math.min(n,14)/12);let t=a.currentTime;
+    [1,1.26,1.5,n>=3?2:0].forEach(m=>{if(!m)return;const o=a.createOscillator(),g=a.createGain();o.type=m===2?'sine':'triangle';o.frequency.value=base*m;
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(m===2?.08:.14,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+.12);
+      o.connect(g).connect(a.destination);o.start(t);o.stop(t+.15);t+=.055});
+  },
+  // Sonido de error: corto y grave, y el celular vibra.
+  error(){tone('bad');try{const u=navigator.userActivation;if(navigator.vibrate&&(!u||u.hasBeenActive))navigator.vibrate(60)}catch(e){}},
+  // Cartel grande en el centro: "¡Paso superado!".
+  cartel(txt,sub){
+    $$('.dg-cartel').forEach(x=>x.remove());
+    const d=document.createElement('div');d.className='dg-cartel';d.innerHTML=`<b>${txt}</b>${sub?`<span>${sub}</span>`:''}`;
+    document.body.appendChild(d);tone('lvl');burst(45);setTimeout(()=>d.remove(),1700);
+  },
+  // Texto que sube desde un elemento (+puntos, combo).
+  flota(el,txt,color){
+    if(!el)return;const r=el.getBoundingClientRect(),f=document.createElement('div');
+    f.className='dg-flota';f.textContent=txt;f.style.left=(r.left+r.width/2)+'px';f.style.top=(r.top)+'px';if(color)f.style.color=color;
+    document.body.appendChild(f);setTimeout(()=>f.remove(),900);
+  },
+  // Sacudir un elemento.
+  sacude(el){if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+};
 
 /* =====================================================================
    MOTOR COMÚN: tres momentos para construir un diagrama
@@ -50,18 +88,36 @@ const simCard=(t,n,d,color)=>`<div class="simcard" style="--c:${color}">${SIM[t]
    ===================================================================== */
 function motor(host,ctx,done,cfg){
   const est={fase:1,i:0,errs:0,hechos:[],vis:new Set(cfg.visiblesInicio||[]),sel:null,ultimo:null,nuevoNodo:null,msg:null,
-    quiz:shuffle(cfg.simbolos),cls:shuffle(cfg.clasifica.items)};
+    quiz:shuffle(cfg.simbolos),cls:shuffle(cfg.clasifica.items),combo:0,mejor:0,pts:0,seguidos:0,pista:false,ultimoEl:null};
   const nombres=shuffle(cfg.simbolos.map(s=>s.n));
   const total=cfg.simbolos.length+cfg.clasifica.items.length+cfg.flujos.length;
   host.innerHTML=`<div class="gtitle"><span class="eyebrow" style="color:var(--gold)">${cfg.eyebrow}</span><h3>${cfg.titulo}</h3><p class="dg-pista"></p></div>
+    <div class="dg-marcador"><span class="dg-pts">⭐ 0</span><span class="dg-combo"></span></div>
     <div class="dg-prog" role="progressbar" aria-label="Avance del minijuego"><i></i></div>
     <div class="dg-lienzo" hidden></div><div class="dg-panel" aria-live="polite"></div>`;
   const lienzo=$('.dg-lienzo',host),panel=$('.dg-panel',host),pista=$('.dg-pista',host);
   const pistas=['','Paso 1 de 3: aprende los símbolos. ¿Cómo se llama cada uno?','Paso 2 de 3: '+cfg.clasifica.pista,'Paso 3 de 3: toca la pieza de donde sale la flecha y luego la pieza a donde llega.',cfg.cierre.pista];
   const nombre=id=>cfg.nombre(id);
 
-  const acertar=t=>{est.msg={ok:true,t};tone('place');addXP(3)};
-  const fallar=t=>{est.msg={ok:false,t};est.errs++;tone('bad')};
+  function marcador(){
+    $('.dg-pts',host).textContent='⭐ '+est.pts;
+    const c=$('.dg-combo',host);c.textContent=est.combo>=2?`🔥 Combo x${est.combo}`:'';
+    c.classList.toggle('caliente',est.combo>=5);
+    if(est.combo>=2){c.classList.remove('late');void c.offsetWidth;c.classList.add('late')}
+  }
+  // Acierto: suma puntos según el combo, suena más agudo y hace saltar el número.
+  const acertar=t=>{
+    est.combo++;est.mejor=Math.max(est.mejor,est.combo);est.seguidos=0;est.pista=false;
+    const p=10+Math.min(est.combo,10)*2;est.pts+=p;est.msg={ok:true,t};
+    JUGO.chispa(est.combo);addXP(3);JUGO.flota(est.ultimoEl,'+'+p);
+    if(est.combo===5||est.combo===10)toast(est.combo===10?'¡Combo x10! Eres imparable 🔥':'¡Combo x5! Vas en racha 🔥');
+    marcador();
+  };
+  // Error: rompe el combo; con dos errores seguidos aparece una pista que brilla.
+  const fallar=t=>{
+    est.msg={ok:false,t};est.errs++;est.seguidos++;est.combo=0;est.pista=est.seguidos>=2;
+    JUGO.error();marcador();
+  };
 
   function pintar(){
     const hecho=est.fase===1?est.i:est.fase===2?cfg.simbolos.length+est.i:est.fase===3?cfg.simbolos.length+cfg.clasifica.items.length+est.hechos.length:total;
@@ -69,8 +125,10 @@ function motor(host,ctx,done,cfg){
     pista.textContent=pistas[est.fase];
     // lienzo
     if(est.fase>=2){lienzo.hidden=false;lienzo.innerHTML=(cfg.paleta||'')+cfg.svg(est)+(cfg.extra?cfg.extra(est):'')}
-    $$('[data-nodo]',lienzo).forEach(g=>{g.onclick=()=>tocar(g.dataset.nodo);g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tocar(g.dataset.nodo)}}});
-    $$('[data-opc]',lienzo).forEach(z=>z.onclick=()=>responder(z.dataset.opc));
+    $$('[data-nodo]',lienzo).forEach(g=>{g.onclick=()=>{est.ultimoEl=g;tocar(g.dataset.nodo)};g.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();est.ultimoEl=g;tocar(g.dataset.nodo)}}});
+    $$('[data-opc]',lienzo).forEach(z=>z.onclick=()=>{est.ultimoEl=z;responder(z.dataset.opc)});
+    // pista del paso 3: brilla la pieza de donde sale una flecha que falta
+    if(est.fase===3&&est.pista&&!est.sel){const f=cfg.flujos.find(x=>!est.hechos.includes(x));const g=f&&$(`[data-nodo="${f.de}"]`,lienzo);if(g)g.classList.add('pista')}
     est.nuevoNodo=null;est.ultimo=null;
     pintarPanel();
   }
@@ -79,27 +137,29 @@ function motor(host,ctx,done,cfg){
     if(est.fase===1){
       const s=est.quiz[est.i];
       panel.innerHTML=`<div class="dg-q">${s.svg}<small>Símbolo ${est.i+1} de ${est.quiz.length}</small><b>¿Cómo se llama?</b></div>
-        <div class="dg-ops">${nombres.map(n=>`<button class="opt" data-n="${esc(n)}">${n}</button>`).join('')}</div>${msg}`;
-      $$('[data-n]',panel).forEach(b=>b.onclick=()=>nombrar(b.dataset.n));
+        <div class="dg-ops">${nombres.map(n=>`<button class="opt ${est.pista&&n===s.n?'pista':''}" data-n="${esc(n)}">${n}</button>`).join('')}</div>${msg}`;
+      $$('[data-n]',panel).forEach(b=>b.onclick=()=>{est.ultimoEl=b;nombrar(b.dataset.n)});
     }else if(est.fase===2){
       const it=est.cls[est.i];
       panel.innerHTML=`<div class="dg-q"><small>${cfg.clasifica.pregunta} · ${est.i+1} de ${est.cls.length}</small><b>${it.t}</b>${it.det?`<em>${it.det}</em>`:''}</div>
-        <div class="dg-ops">${cfg.clasifica.opciones.map(o=>`<button class="opt" data-o="${o.id}">${o.ic?o.ic+' ':''}${o.n}</button>`).join('')}</div>${msg}`;
-      $$('[data-o]',panel).forEach(b=>b.onclick=()=>responder(b.dataset.o));
+        <div class="dg-ops">${cfg.clasifica.opciones.map(o=>`<button class="opt ${est.pista&&o.id===it.ok?'pista':''}" data-o="${o.id}">${o.ic?o.ic+' ':''}${o.n}</button>`).join('')}</div>${msg}`;
+      $$('[data-o]',panel).forEach(b=>b.onclick=()=>{est.ultimoEl=b;responder(b.dataset.o)});
     }else if(est.fase===3){
-      panel.innerHTML=`<div class="dg-q"><small>${cfg.flechas} ${est.hechos.length} de ${cfg.flujos.length}</small><b>${est.sel?'Sale de «'+nombre(est.sel)+'». ¿A dónde llega?':'¿De dónde sale la siguiente flecha?'}</b></div>${msg}`;
+      panel.innerHTML=`<div class="dg-q"><small>${cfg.flechas} ${est.hechos.length} de ${cfg.flujos.length}</small><b>${est.sel?'Sale de «'+nombre(est.sel)+'». ¿A dónde llega?':'¿De dónde sale la siguiente flecha?'}</b>${est.pista&&!est.sel?'<em>💡 Pista: empieza por la pieza que brilla.</em>':''}</div>${msg}`;
     }else{
       panel.classList.add('fin');   // al terminar, el panel deja de flotar para ver el diagrama completo
-      panel.innerHTML=`<div class="dg-fin">${cfg.cierre.html}</div><div class="act"><button class="btn" id="dgok">¡Listo! →</button></div>`;
+      panel.innerHTML=`<div class="dg-resumen"><span><b>⭐ ${est.pts}</b>puntos</span><span><b>🔥 x${est.mejor}</b>mejor combo</span><span><b>${est.errs===0?'💯':est.errs}</b>${est.errs===0?'sin errores':'errores'}</span></div>
+        <div class="dg-fin">${cfg.cierre.html}</div><div class="act"><button class="btn" id="dgok">¡Listo! →</button></div>`;
       $('#dgok',panel).onclick=()=>{tone('tap');ctx.errors+=Math.min(3,Math.ceil(est.errs/4));done()};
     }
+    if(est.msg&&!est.msg.ok)JUGO.sacude($('.dg-q',panel));
   }
   // Momento 1
   function nombrar(n){
     const s=est.quiz[est.i];
     if(n!==s.n){fallar(`No es «${n}». ${s.pista}`);return pintarPanel()}
     acertar(`${s.n}. ${s.por}`);est.i++;
-    if(est.i>=est.quiz.length){est.fase=2;est.i=0;est.msg={ok:true,t:'¡Símbolos listos! Ahora vamos a armar el diagrama del caso.'}}
+    if(est.i>=est.quiz.length){est.fase=2;est.i=0;est.msg={ok:true,t:'¡Símbolos listos! Ahora vamos a armar el diagrama del caso.'};JUGO.cartel('¡Paso 1 superado!','Ya conoces los símbolos')}
     pintar();
   }
   // Momento 2
@@ -108,7 +168,7 @@ function motor(host,ctx,done,cfg){
     const it=est.cls[est.i];
     if(opc!==it.ok){fallar(cfg.clasifica.mal(it,opc));return pintarPanel()}
     est.vis.add(it.id);est.nuevoNodo=it.id;acertar(cfg.clasifica.bien(it));est.i++;
-    if(est.i>=est.cls.length){est.fase=3;est.i=0;est.msg={ok:true,t:cfg.clasifica.fin}}
+    if(est.i>=est.cls.length){est.fase=3;est.i=0;est.msg={ok:true,t:cfg.clasifica.fin};JUGO.cartel('¡Paso 2 superado!','Ahora conecta las flechas')}
     pintar();
   }
   // Momento 3
@@ -122,7 +182,7 @@ function motor(host,ctx,done,cfg){
     if(est.hechos.includes(f)){est.msg={ok:false,t:'Esa flecha ya está dibujada.'};return pintar()}
     est.hechos.push(f);est.ultimo=f;
     acertar(cfg.explica(f));
-    if(est.hechos.length>=cfg.flujos.length){est.fase=4;burst(60);tone('win')}
+    if(est.hechos.length>=cfg.flujos.length){est.fase=4;JUGO.cartel('¡Diagrama completo! 🎉',est.errs===0?'¡Sin un solo error!':'Mira cómo se mueve')}
     pintar();
   }
   pintar();
@@ -184,16 +244,18 @@ function dfdForma(n,est){
 }
 function dfdSvg(est){
   const id='dgm'+Math.random().toString(36).slice(2,6);
-  let flechas='',badges='';
+  let flechas='',badges='',paquetes='';
   est.hechos.forEach((f,k)=>{
     const A=dfdNodo(f.de),B=dfdNodo(f.a),inv=DFD.flujos.some(g=>g.de===f.a&&g.a===f.de);
     const [p,q]=dfdExtremos(A,B,inv?(f.de<f.a?9:-9):0);
-    flechas+=`<path d="M${p.x.toFixed(1)} ${p.y.toFixed(1)}L${q.x.toFixed(1)} ${q.y.toFixed(1)}" pathLength="1" fill="none" stroke="${INK}" stroke-width="3" marker-end="url(#${id})" class="${f===est.ultimo?'nueva':''}"/>`;
+    const d=`M${p.x.toFixed(1)} ${p.y.toFixed(1)}L${q.x.toFixed(1)} ${q.y.toFixed(1)}`;
+    flechas+=`<path d="${d}" pathLength="1" fill="none" stroke="${INK}" stroke-width="3" marker-end="url(#${id})" class="${f===est.ultimo?'nueva':''}"/>`;
+    paquetes+=paquete(d,f===est.ultimo,est.fase===4,k);
     badges+=`<g transform="translate(${((p.x+q.x)/2).toFixed(1)} ${((p.y+q.y)/2).toFixed(1)})"><circle r="10.5" fill="#FFC23D" stroke="${INK}" stroke-width="2"/><text text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="900">${k+1}</text></g>`;
   });
   return `<svg viewBox="0 0 440 640" fill="${INK}" role="img" aria-label="Diagrama de flujo de datos: ${est.hechos.length} flechas dibujadas de ${DFD.flujos.length}">
     <defs><marker id="${id}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="${INK}"/></marker></defs>
-    ${flechas}${DFD.nodos.filter(n=>est.vis.has(n.id)).map(n=>dfdForma(n,est)).join('')}${badges}</svg>`;
+    ${flechas}${DFD.nodos.filter(n=>est.vis.has(n.id)).map(n=>dfdForma(n,est)).join('')}${badges}${paquetes}</svg>`;
 }
 function dfdLeyenda(est){
   if(!est.hechos.length)return '';
@@ -306,15 +368,16 @@ function bpForma(n,est){
 }
 function bpSvg(est){
   const id='dgb'+Math.random().toString(36).slice(2,6);
-  let lanes='',zonas='',flechas='',etiquetas='';
+  let lanes='',zonas='',flechas='',etiquetas='',paquetes='';
   BP.carriles.forEach((c,k)=>{
     const x=BP_CS[k],w=c.rows*BP_ROW;
     lanes+=`<rect x="${x}" y="${BP_POOL}" width="${w}" height="${BP_H-BP_POOL}" fill="${c.bg}" fill-opacity=".55" stroke="${INK}" stroke-width="2"/>
       <rect x="${x}" y="${BP_POOL}" width="${w}" height="${BP_LANE}" fill="${c.c}" stroke="${INK}" stroke-width="2"/>${texto(x+w/2,BP_POOL+BP_LANE/2,c.n,14,12,'font-weight="800" fill="#fff"')}`;
     if(est.fase===2)zonas+=`<rect class="zona" data-opc="${c.id}" x="${x}" y="${BP_M0}" width="${w}" height="${BP_H-BP_M0}"><title>Carril ${esc(c.n)}</title></rect>`;
   });
-  est.hechos.forEach(f=>{
+  est.hechos.forEach((f,k)=>{
     const r=bpRuta(bpNodo(f.de),bpNodo(f.a));
+    paquetes+=paquete(r.d,f===est.ultimo,est.fase===4,BP.flujos.indexOf(f));
     flechas+=`<path d="${r.d}" pathLength="1" fill="none" stroke="${INK}" stroke-width="3" stroke-linejoin="round" marker-end="url(#${id})" class="${f===est.ultimo?'nueva':''}"/>`;
     if(f.et)etiquetas+=`<g transform="translate(${r.mx} ${r.my})"><rect x="-14" y="-9" width="28" height="18" rx="9" fill="#fff" stroke="${INK}" stroke-width="2"/><text text-anchor="middle" dominant-baseline="central" font-size="11" font-weight="900">${f.et}</text></g>`;
   });
@@ -323,7 +386,7 @@ function bpSvg(est){
     <rect x="0" y="0" width="${BP_W}" height="${BP_H}" fill="#fff" fill-opacity=".7"/>
     ${lanes}<rect x="0" y="0" width="${BP_W}" height="${BP_POOL}" fill="${INK}"/>${texto(BP_W/2,BP_POOL/2,BP.titulo,60,12,'font-weight="800" fill="#FFF7E8"')}
     <rect x="0" y="0" width="${BP_W}" height="${BP_H}" fill="none" stroke="${INK}" stroke-width="4"/>
-    ${flechas}${BP.nodos.filter(n=>est.vis.has(n.id)).map(n=>bpForma(n,est)).join('')}${etiquetas}${zonas}</svg>`;
+    ${flechas}${BP.nodos.filter(n=>est.vis.has(n.id)).map(n=>bpForma(n,est)).join('')}${etiquetas}${paquetes}${zonas}</svg>`;
 }
 const bpCarril=id=>BP.carriles.find(c=>c.id===id);
 function bpValida(de,a){
@@ -374,5 +437,5 @@ const BP_CFG={
 const tarjetaDfd=()=>`<div class="simgrid">${simCard('ent','Entidad externa','Quien da o recibe datos pero está fuera del sistema.','#7C8A82')}${simCard('pro','Proceso','Transforma los datos que entran en datos que salen.','#2B7BB9')}${simCard('alm','Almacén de datos','Donde los datos quedan guardados.','#B88600')}${simCard('flu','Flujo de datos','Flecha con el nombre del dato que viaja.','#1E8C4E')}</div>`;
 const tarjetaBpmn=()=>`<div class="simgrid g3">${simCard('ini','Evento de inicio','Aquí empieza.','#1E8C4E')}${simCard('tar','Tarea','Una actividad que alguien hace.','#D0661C')}${simCard('com','Compuerta','Una decisión: Sí o No.','#B88600')}${simCard('fin','Evento de fin','Aquí termina un camino.','#DA3832')}${simCard('seq','Flujo de secuencia','El orden de las cosas.','#14231B')}${simCard('car','Carril','El actor que hace sus tareas.','#D0661C')}</div>`;
 
-return {motor,tarjetaDfd,tarjetaBpmn,DFD_CFG,BP_CFG};
+return {motor,tarjetaDfd,tarjetaBpmn,DFD_CFG,BP_CFG,JUGO};
 })();
