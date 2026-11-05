@@ -11,8 +11,8 @@
 .mx-col small,.mx-fila small{font:700 .66rem var(--body);opacity:.85;letter-spacing:0}
 .mx-fila{writing-mode:vertical-rl;transform:rotate(180deg);padding:6px 2px}
 .mx-col.no,.mx-fila.no{background:rgba(218,56,50,.18)}
-.mx-cuadro{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;min-height:118px;background:var(--bg);color:var(--ink);border:3px solid var(--ink);border-top:8px solid var(--c);border-radius:14px;box-shadow:0 4px 0 var(--ink);padding:8px;cursor:pointer;transition:transform .08s}
-.mx-cuadro:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.mx-cuadro{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;min-height:118px;background:var(--bg);color:var(--ink);border:3px solid var(--ink);border-radius:14px;box-shadow:inset 0 7px 0 var(--c),0 4px 0 var(--ink);padding:13px 8px 8px;cursor:pointer;transition:transform .08s}
+.mx-cuadro:active{transform:translateY(3px);box-shadow:inset 0 7px 0 var(--c),0 1px 0 var(--ink)}
 .mx-cuadro b{font:900 .95rem var(--display);line-height:1.15}
 .mx-cuadro small{font-size:.78rem;color:var(--muted);line-height:1.2}
 .mx-dentro{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
