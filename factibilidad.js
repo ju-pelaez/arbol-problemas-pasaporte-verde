@@ -107,3 +107,61 @@ function jugar(host,ctx,done){
 }
 return {jugar};
 })();
+
+/* Minijuego «Voltea y decide»: cada carta trae un dato del Pasaporte Verde.
+   El estudiante dice si ese dato responde a la FACTIBILIDAD (¿se puede?) o a la VIABILIDAD (¿vale la pena?),
+   y la carta se voltea con la respuesta y el porqué. */
+const VOLTEA=(()=>{
+const CARTAS=[
+  {t:'Los datos del IDEAM, el ICA y la ANT ya existen.',ok:'f',est:'Factibilidad técnica',por:'Dice si SE PUEDE: los datos ya están, falta integrarlos.'},
+  {t:'Los compradores europeos ya piden coordenadas e imágenes satelitales.',ok:'v',est:'Viabilidad · necesidad real',por:'Hay alguien que lo necesita: por eso VALE LA PENA.'},
+  {t:'Las fechas del reglamento europeo ya están encima.',ok:'v',est:'Viabilidad · es el momento',por:'Es ahora o nunca: eso dice si vale la pena hacerlo YA.'},
+  {t:'Funciona aunque la señal de la vereda se caiga.',ok:'f',est:'Factibilidad técnica',por:'Es sobre si SE PUEDE hacer con la tecnología que hay en el campo.'},
+  {t:'Las asociaciones pueden acompañar al productor a registrarse.',ok:'f',est:'Factibilidad operativa',por:'Es sobre si la gente PUEDE manejarlo en la práctica.'},
+  {t:'El pequeño productor ya no quedaría excluido del mercado.',ok:'v',est:'Viabilidad · impacto',por:'Es el beneficio que se logra: por eso vale la pena.'},
+  {t:'La Ley 1581 permite compartir los datos del predio con autorización.',ok:'f',est:'Factibilidad legal',por:'Es sobre si la ley PERMITE hacerlo.'},
+  {t:'Las entidades deben mantener sus datos al día para que dure con los años.',ok:'v',est:'Viabilidad · se sostiene',por:'Es sobre si el proyecto SE SOSTIENE en el tiempo.'},
+  {t:'Reutilizar fuentes públicas cuesta menos que producir los datos desde cero.',ok:'f',est:'Factibilidad económica',por:'Es sobre si alcanzan los recursos: si SE PUEDE pagar.'}
+];
+const OPC={f:{ic:'🔧',n:'Factibilidad',sub:'¿se puede?'},v:{ic:'🌱',n:'Viabilidad',sub:'¿vale la pena?'}};
+
+function jugar(host,ctx,done){
+  const J=DG.JUGO,mazo=shuffle(CARTAS);
+  let i=0,errs=0,combo=0,mejor=0,pts=0,bloqueo=false;
+  host.innerHTML=`<div class="gtitle"><span class="eyebrow" style="color:var(--gold)">Minijuego · Voltea y decide 🃏</span><h3>¿Factibilidad o viabilidad?</h3>
+     <p>Lee el dato. ¿Responde a <b>¿se puede?</b> o a <b>¿vale la pena?</b> Elige y la carta se voltea.</p></div>
+    <div class="dg-marcador"><span class="dg-pts">⭐ 0</span><span class="dg-combo"></span></div>
+    <div class="dg-prog"><i></i></div><div class="vt-mesa"></div>`;
+  const mesa=$('.vt-mesa',host);
+  const marcador=()=>{$('.dg-pts',host).textContent='⭐ '+pts;const c=$('.dg-combo',host);c.textContent=combo>=2?`🔥 Combo x${combo}`:'';c.classList.toggle('caliente',combo>=4);
+    if(combo>=2){c.classList.remove('late');void c.offsetWidth;c.classList.add('late')}};
+  function mostrar(){
+    $('.dg-prog i',host).style.width=(i/mazo.length*100)+'%';bloqueo=false;
+    if(i>=mazo.length)return fin();
+    const k=mazo[i];
+    mesa.innerHTML=`<div class="flip vt-carta pop"><div class="in"><div class="f"><small>Carta ${i+1} de ${mazo.length}</small><span>${k.t}</span></div><div class="b"></div></div></div>
+      <div class="vt-ops">${['f','v'].map(o=>`<button class="vt-op vt-${o}" data-o="${o}"><b>${OPC[o].ic} ${OPC[o].n}</b><small>${OPC[o].sub}</small></button>`).join('')}</div>`;
+    $$('.vt-op',mesa).forEach(b=>b.onclick=()=>elegir(b));
+  }
+  function elegir(b){
+    if(bloqueo)return;bloqueo=true;
+    const k=mazo[i],bien=b.dataset.o===k.ok,carta=$('.vt-carta',mesa);
+    if(bien){combo++;mejor=Math.max(mejor,combo);const p=10+Math.min(combo,10)*3;pts+=p;J.chispa(combo);addXP(3);J.flota(b,'+'+p)}
+    else{errs++;combo=0;J.error();J.sacude(b)}
+    marcador();
+    $('.b',carta).innerHTML=`<b class="vt-res ${bien?'ok':'no'}">${bien?'✅ ¡Correcto!':'❌ Era '+OPC[k.ok].n}</b><span class="vt-est">${OPC[k.ok].ic} ${k.est}</span><span>${k.por}</span>`;
+    $('.b',carta).style.background=k.ok==='f'?'var(--dat-bg)':'var(--act-bg)';
+    carta.classList.add('on');
+    $('.vt-ops',mesa).innerHTML=`<button class="btn" id="vtsig">${i+1<mazo.length?'¡Siguiente carta! →':'¡Ver resultado! →'}</button>`;
+    $('#vtsig',mesa).onclick=()=>{tone('tap');i++;mostrar()};
+  }
+  function fin(){
+    J.cartel('¡Mazo completo! 🃏',errs===0?'¡Sin un solo error!':'Ya distingues las dos');
+    mesa.innerHTML=`<div class="dg-resumen"><span><b>⭐ ${pts}</b>puntos</span><span><b>🔥 x${mejor}</b>mejor combo</span><span><b>${errs===0?'💯':errs}</b>${errs===0?'sin errores':'errores'}</span></div>
+      <div class="act" style="margin-top:12px"><button class="btn" id="vtok">¡Listo! →</button></div>`;
+    $('#vtok',mesa).onclick=()=>{tone('tap');ctx.errors+=Math.min(3,Math.ceil(errs/3));done()};
+  }
+  mostrar();
+}
+return {jugar};
+})();

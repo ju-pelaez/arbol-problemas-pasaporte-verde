@@ -915,9 +915,12 @@ const MISSIONS=[
   {text:'¿El productor entiende lo que le muestra?',b:'ope'},{text:'¿Las asociaciones pueden acompañar el registro?',b:'ope'},
   {text:'¿Reduce el costo de acreditar el origen?',b:'eco'},{text:'¿Cuesta menos que las ventas que hoy se pierden?',b:'eco'},
   {text:'¿Cumple el Reglamento (UE) 2023/1115?',b:'leg'},{text:'¿Respeta la Ley 1581 de datos personales?',b:'leg'}]},
+ {t:'memory',title:'Memoria: ¿qué pregunta cada estudio?',pairs:[['Técnica','¿Hay datos y tecnología?'],['Operativa','¿La gente lo usaría?'],['Económica','¿Cuesta menos de lo que ahorra?'],['Legal','¿Lo permite la ley?'],['Factible','Se PUEDE hacer'],['Viable','Vale la pena y se sostiene']]},
  {t:'talk',mood:'happy',btn:'¡A jugar!',say:'Y la **viabilidad**: ¿vale la pena y se sostiene en el tiempo?',
   card:rows([['Necesidad real','Los compradores europeos ya piden coordenadas, imágenes satelitales y documentos.','efe'],['Es el momento','Las fechas del reglamento ya están encima.','efe'],['Impacto','Que el pequeño productor no quede excluido y que no se amplíe la frontera agrícola.','efe'],['Riesgos','La señal en el campo, la confianza del productor y que las entidades mantengan sus datos al día.','efe'],['Conclusión','Es viable: hay necesidad, hay fecha y hay fuentes. Hay que cuidar los riesgos.','efe']])},
- {t:'match',title:'Une cada estudio con su pregunta',pairs:[['Técnica','¿Hay datos y tecnología?'],['Operativa','¿La gente lo usaría?'],['Económica','¿Cuesta menos de lo que ahorra?'],['Legal','¿Lo permite la ley?'],['Viabilidad','¿Vale la pena y se sostiene?']]},
+ {t:'voltea'},
+ {t:'catch',title:'Atrapa solo lo que hace VIABLE el proyecto',target:'VIABLE',goal:6,good:['Necesidad real','Es el momento','Impacto en el productor','Se sostiene en el tiempo','Los compradores ya lo piden','Las fechas ya están encima','Vale la pena'],bad:['Hay datos del IDEAM','Funciona sin señal','Lo permite la ley','Hay tecnología','Las asociaciones acompañan','Cuesta menos de lo que ahorra']},
+ {t:'speed',title:'Relámpago: factibilidad y viabilidad',banks:['factibilidad'],secs:45},
  {t:'battle',bank:'factibilidad'}]},
 {id:'dfd',icon:'🗺️',k:'dat',title:'DFD · Flujo de datos',sub:'Qué datos entran, se guardan y salen',mon:['El Dato Perdido','#2B7BB9'],steps:[
  {t:'talk',mood:'wow',say:'Ahora aprendemos a **dibujar** el sistema. Primero el **DFD**: el diagrama de **flujo de datos**. Muestra cómo **viajan los datos**.',
@@ -1040,7 +1043,8 @@ function playMission(m){
     scene(`<div class="paper center pop"><div style="display:flex;justify-content:center">${ceiba('wow')}</div><h2>¡Misión completa!</h2><p style="font-size:2rem;color:#C9A13E;letter-spacing:4px">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</p>
       <p>${stars===3?'Perfecto, sin errores. Eso ya es tuyo.':stars===2?'Muy bien. Lo que fallaste quedó en tu banco de errores.':'Ganaste. Repasa el banco de errores en un rato y vuelve a intentarlo.'}</p>
       <p class="muted" style="margin-top:6px">${m.title}: +${30+stars*10} XP</p>
-      <div class="act" style="margin-top:16px"><button class="btn ghost" id="map">Mapa</button><button class="btn ghost" id="mov">🕺 Ceibita dice</button>${nx?`<button class="btn" id="nxm">Siguiente: ${nx.title} →</button>`:'<button class="btn" id="verArbol">🌳 Ver mi árbol completo</button>'}</div></div>`);
+      <div class="act" style="margin-top:16px"><button class="btn ghost" id="map">Mapa</button><button class="btn ghost" id="mov">🕺 Ceibita dice</button>${nx?`<button class="btn" id="nxm">Siguiente: ${nx.title} →</button>`:'<button class="btn" id="verArbol">🌳 Ver mi árbol completo</button>'}</div>${salonInv(m.id)}</div>`);
+    conectaSalon();
     $('#mov').onclick=()=>SCREENS.mover();
     $('#map').onclick=()=>showMap(stars===3?'¡Tres estrellas! Sigue con la siguiente.':'Bien hecho. Ese tema ya tiene raíces en tu cabeza.');
     if(nx)$('#nxm').onclick=()=>playMission(nx);else $('#verArbol').onclick=()=>SCREENS.arbol();
@@ -1049,6 +1053,23 @@ function playMission(m){
 }
 
 const RUN={};
+
+/* Reto del salón dentro de la misión: al terminar la misión de factibilidad (o el jefe final),
+   el estudiante escribe el código del proyector y entra a la sala ahí mismo. */
+const SALON_DE={factibilidad:{tema:'&tema=factibilidad',t:'⚖️ Ahora, el Reto del salón',p:'Si el profe abrió la sala de <b>factibilidad y viabilidad</b> en el proyector, escribe el código y juega con todo el curso.'},
+  jefe:{tema:'',t:'🎉 Ahora, el Reto del salón',p:'Si el profe abrió la sala del <b>árbol de problemas</b> en el proyector, escribe el código y juega con todo el curso.'}};
+function salonInv(id){
+  const x=SALON_DE[id];if(!x)return '';
+  return `<div class="salon-inv" data-tema="${x.tema}"><h3>${x.t}</h3><p>${x.p}</p>
+    <div class="fila"><input id="salonCod" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ABCD" aria-label="Código de la sala"><button class="btn" id="salonIr">Entrar →</button></div>
+    <p class="profe">¿Eres el profe? <a href="salon/?${x.tema.slice(1)}">📽️ Abre la sala en el proyector</a></p></div>`;
+}
+function conectaSalon(){
+  const inp=$('#salonCod');if(!inp)return;
+  const tema=$('.salon-inv').dataset.tema||'';
+  const ir=()=>{const c=inp.value.trim().toUpperCase();if(!/^[A-Z0-9]{4}$/.test(c)){tone('bad');inp.focus();return}tone('tap');location.href='salon/?sala='+c+tema};
+  $('#salonIr').onclick=ir;inp.onkeydown=e=>{if(e.key==='Enter')ir()};
+}
 RUN.talk=(host,st,ctx,done)=>{
   host.innerHTML=`<div class="talk">${ceiba(st.mood||'happy')}<div class="bubble"><p class="say"></p><button class="spk" aria-label="Escuchar o parar la voz" title="Escuchar o parar la voz">🔊</button></div></div>
    <div class="voz-ctl"><button class="btn small" id="vozPlay">▶ Escuchar</button><button class="btn small ghost" id="vozStop">⏹ Parar voz</button></div>
@@ -1914,7 +1935,8 @@ RUN.build=(host,st,ctx,done)=>{
 /* ---------- diagramas: DFD y DFP tipo Bizagi (ver diagramas.js) ---------- */
 RUN.dfd=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.DFD_CFG);
 RUN.bpmn=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.BP_CFG);
-RUN.matriz=(host,st,ctx,done)=>MATRIZ.jugar(host,ctx,done);   // reto de factibilidad y viabilidad (factibilidad.js)
+RUN.matriz=(host,st,ctx,done)=>MATRIZ.jugar(host,ctx,done);
+RUN.voltea=(host,st,ctx,done)=>VOLTEA.jugar(host,ctx,done);   // cartas que se voltean (factibilidad.js)   // reto de factibilidad y viabilidad (factibilidad.js)
 
 /* ---------- pasos nuevos dentro de las misiones ---------- */
 function addBefore(mid,step){const s=MBYID[mid].steps,bi=s.findIndex(x=>x.t==='battle');s.splice(bi<0?s.length:bi,0,step)}
