@@ -444,3 +444,4 @@ a { color: var(--oro); }
 .matriz-sal .eje small { display: block; font-weight: 700; opacity: .8; letter-spacing: 0; }
 .matriz-sal .eje.no { background: rgba(218,56,50,.2); }
 .matriz-sal .eje.lado { writing-mode: vertical-rl; transform: rotate(180deg); }
+.privado{font-size:.85em;opacity:.85;margin-top:6px}

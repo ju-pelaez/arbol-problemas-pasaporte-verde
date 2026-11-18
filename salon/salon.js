@@ -349,6 +349,7 @@ function anfitrion() {
           ${TEMA === 'factibilidad' ? `<div class="tema-fact"><span>🔧 ¿Se PUEDE hacer?</span><span>🌱 ¿VALE LA PENA?</span></div>
           <h2>¿El Pasaporte Verde es factible y viable?</h2>` : '<h2>¡Construyamos el árbol entre todos!</h2>'}
           <p>Escaneen el QR y escriban su nombre. Cada uno cae en un equipo: <b>${EQUIPOS.map(e => e.n).join(', ').replace(/, ([^,]*)$/, ' o $1')}</b>. Pueden hablar con su equipo: gana el que tenga mejor promedio. Cuando la mayoría del salón acierta, el árbol crece.</p>
+          <p class="privado">🔒 Usen solo su primer nombre o un apodo: la sala viaja por un servidor público y el chat no es privado.</p>
           <div class="equipos" id="equipos"></div>
           <div class="acciones">
             <button class="btn" id="empezar" disabled>▶ Empezar</button>
@@ -738,7 +739,7 @@ function jugador(codigo) {
     app.innerHTML = `<div class="cel">
       <div class="avatar">🌳</div><h1>Reto del salón</h1><p>Sala <b>${esc(codigo)}</b>. ¿Cómo te llamas?</p>
       <input id="nombre" maxlength="14" autocomplete="off" placeholder="Tu nombre" value="${esc(yo.nombre)}">
-      <button class="btn" id="entrar">Entrar →</button><p id="msj" class="${msj ? 'msj-error' : ''}">${msj ? esc(msj) : 'Vas a quedar en un equipo: Actores, Datos, Procesos o Control.'}</p></div>`;
+      <button class="btn" id="entrar">Entrar →</button><p id="msj" class="${msj ? 'msj-error' : ''}">${msj ? esc(msj) : 'Vas a quedar en un equipo. Usa solo tu primer nombre o un apodo: el chat del salón no es privado.'}</p></div>`;
     const entrar = () => {
       const n = $('#nombre').value.trim();
       if (!n) { $('#nombre').focus(); return; }

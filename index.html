@@ -681,7 +681,11 @@ procesos:[
 ['La regla R-04 dice que la trazabilidad de un lote…','depende de la trazabilidad de todos los predios que lo componen','no importa','depende solo del predio más grande','la define el comprador','Por eso el acopio sin origen rompe todo el lote.'],
 ['¿Qué problema tiene el registro de MOVILIZAR?','Es solo sanitario: no cruza con lo ambiental y no cubre cacao ni caucho','No es obligatorio','Lo hace la universidad','Registra el bosque perfectamente','Su enfoque es sanitario y de movilización.'],
 ['Efecto directo de PROCESOS:','La salida del proceso es evidencia de origen incompleta o inexistente','El productor no sabe qué le exigen','El dato no se vuelve conocimiento','Las pérdidas no se registran','Es la salida que falla en el modelo.'],
-['En COMERCIALIZAR, el precio depende de…','la evidencia entregada','el clima','el color del producto','el transporte','Sin evidencia: venta perdida o castigada en precio.']],
+['En COMERCIALIZAR, el precio depende de…','la evidencia entregada','el clima','el color del producto','el transporte','Sin evidencia: venta perdida o castigada en precio.'],
+['En un diagrama de flujo, ¿qué símbolo es una DECISIÓN?','El rombo','El óvalo','El rectángulo','La flecha','Del rombo salen dos caminos: Sí y No.'],
+['En un diagrama de flujo, ¿para qué es el óvalo?','Para el Inicio y el Fin del proceso','Para una actividad','Para una decisión','Para un dato guardado','Todo diagrama de flujo empieza y termina en un óvalo.'],
+['¿Qué le falta al diagrama de flujo que sí tiene el BPMN de Bizagi?','Los carriles: quién hace cada tarea','Las flechas','El inicio','Las decisiones','El diagrama de flujo dice qué pasa y en qué orden; el BPMN agrega quién lo hace.'],
+['En el diagrama de flujo de hoy, ¿qué pregunta hace la única decisión?','¿La evidencia está completa?','¿Llovió?','¿El predio es grande?','¿Hay internet?','Si es «No», el precio se castiga o el lote se rechaza.']],
 control:[
 ['¿Desde cuándo rige el reglamento para operadores grandes y medianos?','30 de diciembre de 2026','31 de diciembre de 2020','30 de junio de 2027','1 de enero de 2026','Primera aplicación.'],
 ['¿Y para micro y pequeños operadores?','30 de junio de 2027','30 de diciembre de 2026','31 de diciembre de 2020','No aplica','Segunda aplicación.'],
@@ -735,10 +739,26 @@ Q.dfp=[
 ['¿Qué símbolo de BPMN es una decisión?','La compuerta: un rombo con una X','El círculo de borde delgado','El rectángulo redondeado','La flecha continua','De la compuerta salen caminos, como Sí y No.'],
 ['¿Qué significa el círculo de borde grueso?','El evento de fin: aquí termina un camino del proceso','El inicio del proceso','Una tarea','Una decisión','El inicio tiene el borde delgado; el fin, grueso.'],
 ['¿Para qué sirven los carriles de un diagrama BPMN?','Para mostrar quién hace cada tarea','Para dibujar las flechas','Para guardar datos','Para medir el tiempo','Cada carril es un actor: la tarea va en el carril de quien la hace.'],
-['En el DFP del Pasaporte Verde, ¿en qué carril va “Acopiar en un lote”?','Acopiador / asociación','Productor','Comprador','Entidad de registro','El acopiador junta el producto de muchos predios en un lote.'],
-['¿Qué decide la compuerta “¿Evidencia completa?”','Si el lote se paga completo o se castiga o se rechaza','Dónde queda el predio','Cuánto cuesta el cacao','Quién es el productor','Si la respuesta es “No”, el lote pierde precio o acceso: es un efecto del árbol.'],
+['En el DFP del Pasaporte Verde, ¿en qué carril va “Acopiar varios predios en un lote”?','Acopiador (cooperativa)','Productor','Comprador','Entidades','El acopiador junta el producto de muchos predios en un lote.'],
+['¿Qué decide la compuerta “¿Evidencia completa?”','Si el lote se vende con precio pleno o se castiga o se rechaza','Dónde queda el predio','Cuánto cuesta el cacao','Quién es el productor','Si la respuesta es “No”, el lote pierde precio o acceso: es un efecto del árbol.'],
 ['¿Cuál es la diferencia entre DFD y DFP?','El DFD sigue los datos; el DFP sigue las tareas, los responsables y el orden','Ninguna, son iguales','El DFD es para el campo y el DFP para la oficina','El DFD usa carriles y el DFP usa almacenes','Se complementan: datos y procesos son dos columnas del sistema.'],
-['¿Con qué estado del sistema se dibuja el DFP en esta clase?','Con el proceso como funciona hoy (AS-IS), incluso lo que sale mal','Con el proceso ideal del futuro','Con la app ya terminada','No se dibuja','El árbol es mundo real; el DFP muestra dónde falla el proceso de hoy.']];
+['¿Con qué estado del sistema se dibuja el DFP en esta clase?','Con el proceso como funciona hoy (AS-IS), incluso lo que sale mal','Con el proceso ideal del futuro','Con la app ya terminada','No se dibuja','El árbol es mundo real; el DFP muestra dónde falla el proceso de hoy.'],
+['¿Qué es un cuello de botella en un proceso?','Una parte que retrasa o limita todo el flujo','La primera tarea','Un evento de fin','Un carril vacío','Se ve donde se acumulan esperas o todo depende de una sola persona.'],
+['En el DFP de hoy, ¿dónde está el cuello de botella?','En “Acreditar el origen”: depende de la asociación y de papeles dispersos','En “Producir”','En el evento de inicio','En “Expedir la guía”','Ahí se acumulan esperas y nadie más puede hacerlo.'],
+['¿En qué carril va “Expedir la guía (ICA)”?','Entidades','Productor','Comprador','Acopiador','La guía de movilización la expide el ICA (SINIGAN).']];
+Q.uml=[
+['¿Qué es UML?','Un lenguaje estándar para dibujar (modelar) un sistema antes de programarlo','Un lenguaje de programación','Una base de datos','Un programa para hacer presentaciones','Lenguaje Unificado de Modelado: casos de uso, clases, actividades, secuencia…'],
+['¿Qué es un caso de uso?','Algo que el sistema hace y le da un resultado de valor a un actor','Una persona dentro del sistema','Una tabla de la base de datos','Un error del sistema','Se nombra con un verbo: «Registrar el predio y su producción».'],
+['¿Qué es un actor en UML?','Alguien o algo de afuera que usa el sistema para lograr una meta','Un caso de uso','Un programador','Una clase','Puede ser una persona o un sistema externo, como las entidades públicas.'],
+['¿Qué significa «include»?','Que un caso de uso SIEMPRE usa a otro','Que es opcional','Que hereda de otro','Que el actor se repite','Registrar el predio siempre incluye autorizar el uso de los datos (RI-09).'],
+['¿Qué significa «extend»?','Que un caso agrega algo opcional a otro, solo en ciertas condiciones','Que siempre se ejecuta','Que es una clase','Que es un actor','Orientar la subsanación solo pasa si el predio no cumple.'],
+['¿Por qué la certificación formal NO es un caso de uso del Pasaporte Verde?','Porque la da la autoridad competente: el sistema informa y documenta (R-03)','Porque no es importante','Porque la hace el productor','Porque se olvidó','El límite del sistema separa lo que hace el sistema de lo que hacen otros.'],
+['¿Qué partes tiene una clase?','Nombre, atributos (datos) y métodos (acciones)','Inicio, tarea y fin','Actor y caso de uso','Entrada y salida','Predio: ubicación, superficie, cobertura… y evaluarCobertura().'],
+['Un lote agrupa varios predios, pero cada predio existe sin el lote. ¿Qué relación es?','Agregación','Composición','Generalización','Dependencia','Rombo vacío en el todo: la parte vive sola.'],
+['La evidencia es parte del expediente del lote y no existe sin él. ¿Qué relación es?','Composición','Agregación','Asociación','Generalización','Rombo lleno en el todo: la parte muere con el todo.'],
+['El registro sanitario «es una» fuente de datos. ¿Qué relación es?','Generalización (herencia)','Composición','Dependencia','Agregación','Triángulo vacío que apunta al padre.'],
+['¿De dónde salen las clases del Pasaporte Verde?','De los sustantivos del análisis: predio, productor, lote, evidencia','De los verbos del proceso','De los colores del juego','Del precio del cacao','Es el modelo conceptual de la propuesta.'],
+['Los casos de uso y el diagrama de clases del Pasaporte Verde son…','TO-BE: lo que el sistema propuesto debe hacer','AS-IS: el sistema de hoy','El árbol de problemas','El DFD de hoy','El árbol, el DFD y el DFP son AS-IS; el UML modela la solución.']];
 const QBYID={};
 Object.entries(Q).forEach(([k,arr])=>arr.forEach((r,i)=>{QBYID[k+'-'+i]={id:k+'-'+i,q:r[0],a:r[1],w:r.slice(2,5),why:r[5],bank:k}}));
 const qsOf=(bank,n)=>shuffle(Q[bank].map((_,i)=>QBYID[bank+'-'+i])).slice(0,n||99);
@@ -847,6 +867,10 @@ const MISSIONS=[
  {t:'talk',mood:'think',say:'Las **3 causas** de la columna de procesos:',card:causeCard('pro')},
  {t:'talk',mood:'happy',btn:'¡A jugar!',say:'Y su **efecto directo**. Es justo la salida que falla.',card:efdCard('pro')},
  {t:'order',title:'Ordena los 6 procesos',items:['Producir','Documentar','Movilizar','Acopiar','Acreditar origen','Comercializar']},
+ {t:'talk',mood:'wow',say:'En clase, un proceso se dibuja primero con un **diagrama de flujo**: solo **4 símbolos**.',card:DG.tarjetaFlujo()+`<p class="quote" style="margin-top:8px">Es <b>AS-IS</b>: el proceso como pasa <b>hoy</b>, con su decisión y su camino malo.</p>`},
+ {t:'talk',mood:'think',btn:'¡A dibujar!',say:'Tres reglas: empieza y termina en un **óvalo**, cada actividad lleva un **verbo**, y de cada **rombo** salen **Sí** y **No**.',
+  card:flow(['Inicio','Producir','Documentar','Movilizar','Acopiar','Acreditar','¿Evidencia completa?','Fin'],'plain')},
+ {t:'flujo'},
  {t:'match',title:'Une cada proceso con su responsable',pairs:[['Producir','Productor'],['Documentar','Productor / asociación'],['Movilizar','Productor / entidad de control'],['Acopiar','Acopiador / cooperativa'],['Acreditar origen','Asociación / comercializador'],['Comercializar','Comercializador / comprador']]},
  {t:'battle',bank:'procesos'}]},
 
@@ -927,13 +951,13 @@ const MISSIONS=[
 {id:'dfd',icon:'🗺️',k:'dat',title:'DFD · Flujo de datos',sub:'Qué datos entran, se guardan y salen',mon:['El Dato Perdido','#2B7BB9'],steps:[
  {t:'talk',mood:'wow',say:'Ahora aprendemos a **dibujar** el sistema. Primero el **DFD**: el diagrama de **flujo de datos**. Muestra cómo **viajan los datos**.',
   card:rows([['DFD · flujo de datos','¿Qué datos entran, dónde se guardan y a dónde salen? Es la columna de <b>Datos</b>.','dat'],['DFP · flujo de procesos','¿Qué pasos, decisiones y responsables hay, y en qué orden? Es la columna de <b>Procesos</b>.','pro']])+`<p class="quote" style="margin-top:8px">El DFD sigue a los <b>datos</b>. El DFP sigue a las <b>tareas</b>.</p>`},
- {t:'talk',mood:'happy',say:'El DFD tiene solo **4 símbolos**.',card:DG.tarjetaDfd()+`<p class="muted" style="margin-top:8px">En otros libros el proceso es un rectángulo redondeado. Lo importante es lo que significa.</p>`},
+ {t:'talk',mood:'happy',say:'El DFD tiene solo **4 símbolos**.',card:DG.tarjetaDfd()+`<p class="muted" style="margin-top:8px">Usamos la notación de <b>Yourdon y DeMarco</b> (el proceso es un círculo). En la de Gane y Sarson el proceso es un rectángulo redondeado: cambia el dibujo, no lo que significa.</p>`},
  {t:'talk',mood:'think',say:'Y **4 reglas de oro** para que no te regañen.',
   card:list(['Todo flujo <b>sale de un proceso o llega a uno</b>. Los datos no se mueven solos.','Cada flecha lleva el <b>nombre de un dato</b>, no un verbo.','Un proceso siempre tiene <b>entrada y salida</b>.','Dos almacenes, dos entidades, o una entidad y un almacén <b>nunca se conectan directo</b>: en medio va un proceso.'])},
  {t:'talk',mood:'happy',say:'El **nivel 0** es el diagrama de **contexto**: todo el sistema es un solo proceso rodeado de entidades.',
-  card:rows([['Productor → sistema','Datos y documentos del predio, producto cosechado','dat'],['Entidades de registro → sistema','Registros sanitarios y de tierra (ICA, ANT, IGAC)','dat'],['Comprador → sistema','Exigencia y pedido','dat'],['Sistema → Comprador','Producto y evidencia de origen','dat']])},
- {t:'talk',mood:'wow',say:'En el **nivel 1** abrimos la caja y vemos **4 procesos** y **2 almacenes**.',
-  card:rows([['Procesos','Documentar el predio · Acopiar el producto · Acreditar el origen · Comercializar','pro'],['Almacenes','Documentos del predio · Registros de acopio','dat'],['Entidades','Productor · Entidades de registro · Comprador','act']])},
+  card:DG.contextoDfd()+`<p class="muted" style="margin-top:8px">El proceso <b>0</b> es todo el sistema. Las mismas 3 entidades y los mismos datos aparecen en el nivel 1: eso se llama <b>balancear</b> los niveles.</p>`},
+ {t:'talk',mood:'wow',say:'En el **nivel 1** abrimos el proceso 0 y vemos **4 procesos numerados** (1 a 4) y **2 almacenes**.',
+  card:rows([['Procesos','1 Documentar el predio · 2 Acopiar el producto · 3 Acreditar el origen · 4 Comercializar','pro'],['Almacenes','Documentos del predio · Registros de acopio','dat'],['Entidades','Productor · Entidades de registro · Comprador','act']])},
  {t:'talk',mood:'think',btn:'¡A construir!',say:'Ojo: es el sistema de **HOY** (AS-IS). Los almacenes son carpetas y registros que ya existen, **no** una base de datos nueva.',
   card:`<div class="two"><div class="no"><b>❌ Mundo de la solución</b><br>"Base de datos en la nube del Pasaporte Verde."</div><div class="yes"><b>✅ Mundo real</b><br>"Carpeta del predio" y "Registros de acopio", como están hoy.</div></div>`},
  {t:'dfd'},
@@ -952,9 +976,9 @@ const MISSIONS=[
   card:rows([['DFP · flujo de procesos','Tareas, decisiones, responsables y el orden en que pasan.','pro'],['DFD · flujo de datos','Cómo viajan los datos entre procesos y almacenes.','dat']])+`<p class="quote" style="margin-top:8px">Si el árbol dice <b>qué falla</b>, el DFP muestra <b>dónde</b> falla el proceso.</p>`},
  {t:'talk',mood:'happy',say:'Estos son los **símbolos de BPMN**. Son los mismos que ves en Bizagi.',card:DG.tarjetaBpmn()},
  {t:'talk',mood:'think',say:'Un diagrama de Bizagi se lee por **carriles**: cada carril es un **actor**.',
-  card:rows([['Productor','Documenta el predio y mueve el cacao','act'],['Acopiador / asociación','Junta el lote, acredita el origen y entrega la evidencia','pro'],['Comprador','Revisa la evidencia, paga o castiga el precio','dat']])+`<p class="quote" style="margin-top:8px">La tarea va en el carril de <b>quien la hace</b>. Cuando la flecha cruza de carril, el trabajo pasa de un actor a otro.</p>`},
+  card:rows([['Comprador (comercializador)','Define el requisito, decide, vende o castiga el precio','dat'],['Asociación (intermediario)','Traslada la exigencia, documenta el predio y acredita el origen','pro'],['Productor','Produce, registra en papel y pide la guía','act'],['Entidades (ICA · IDEAM · ANT-IGAC)','Expiden la guía de movilización','env'],['Acopiador (cooperativa)','Junta varios predios en un lote','con']])+`<p class="quote" style="margin-top:8px">Son los <b>5 carriles</b> del modelo AS-IS del proyecto en Bizagi. La tarea va en el carril de <b>quien la hace</b>; cuando la flecha cruza de carril, el trabajo pasa de un actor a otro.</p>`},
  {t:'talk',mood:'happy',say:'Este es el proceso que vas a dibujar, en orden:',
-  card:`${flow(['Cosecha lista','Documentar','Movilizar','Acopiar','Acreditar origen','Entregar evidencia','¿Evidencia completa?'],'plain')}<p class="quote" style="margin-top:8px">Si la respuesta es <b>Sí</b>, pagan el precio completo. Si es <b>No</b>, castigan el precio o rechazan el lote.</p>`},
+  card:`${flow(['Exigencia UE','Definir requisito','Trasladar exigencia','Producir','Registrar en papel','Documentar','Pedir guía','Expedir guía','Acopiar','Acreditar origen','¿Evidencia completa?'],'plain')}<p class="quote" style="margin-top:8px">Si es <b>Sí</b>, se vende con precio pleno. Si es <b>No</b>, castigan el precio o rechazan el lote y el productor queda <b>excluido</b>.</p><p class="muted" style="margin-top:6px">Busca también los <b>cuellos de botella</b>: dónde se acumulan esperas o todo depende de una sola persona.</p>`},
  {t:'talk',mood:'think',btn:'¡A modelar!',say:'Igual que el árbol, el DFP es **AS-IS**: se dibuja como pasa **hoy**, incluso el camino malo. No se arregla en el dibujo.',
   card:`<div class="two"><div class="no"><b>❌ Proceso soñado</b><br>"Con la app, el productor entrega todo al instante."</div><div class="yes"><b>✅ Proceso real</b><br>Con su compuerta «¿Evidencia completa?» y su camino «No».</div></div>`},
  {t:'bpmn'},
@@ -965,8 +989,32 @@ const MISSIONS=[
   ['Cada carril muestra qué actor hace cada tarea.',true,'La tarea va en el carril de quien la hace.'],
   ['El evento de fin se dibuja con el borde delgado.',false,'El de fin es grueso; el de inicio es delgado.'],
   ['“Acopiar en un lote” va en el carril del Comprador.',false,'Va en el carril del acopiador o la asociación.'],
-  ['El DFP de esta clase muestra el proceso de HOY (AS-IS).',true,'Incluye el camino malo: el lote castigado o rechazado.']]},
+  ['El DFP de esta clase muestra el proceso de HOY (AS-IS).',true,'Incluye el camino malo: el lote castigado o rechazado.'],
+  ['El proceso empieza con la exigencia del reglamento europeo.',true,'Es el evento de inicio: «Exigencia UE 2023/1115».']]},
  {t:'battle',bank:'dfp'}]},
+{id:'uml',icon:'🧩',k:'dat',title:'UML · Casos de uso y clases',sub:'Lo que el Pasaporte Verde debe hacer',mon:['El Plano Borroso','#3A6EA5'],steps:[
+ {t:'talk',mood:'wow',say:'Hasta aquí analizaste el sistema de **hoy**. Ahora, con **UML**, modelamos lo que el **Pasaporte Verde** debe hacer: es el mundo de la **solución** (TO-BE).',
+  card:rows([['Casos de uso','Vista de afuera: quién usa el sistema y para qué.','act'],['Diagrama de clases','Vista de adentro: qué cosas guarda el sistema y cómo se relacionan.','dat']])+`<p class="quote" style="margin-top:8px"><b>UML</b> = Lenguaje Unificado de Modelado: el plano del software, antes de programarlo.</p>`},
+ {t:'talk',mood:'happy',say:'Los **casos de uso** tienen pocos símbolos.',card:DG.tarjetaCU()},
+ {t:'talk',mood:'think',btn:'¡A modelar!',say:'¿De dónde salen? De los **requisitos** (RI) y del carril «Pasaporte Verde» del BPMN **TO-BE**. Estos son los actores:',
+  card:rows([['Productor','Registra su predio, autoriza sus datos y consulta el requisito y su evaluación.','act'],['Asociación','Acompaña el registro y orienta la subsanación.','act'],['Acopiador','Consolida el lote sin perder el origen de cada predio.','act'],['Comprador','Registra qué evidencia exige y consulta el expediente del lote.','act'],['Entidades públicas','Actor secundario: entregan los datos (IDEAM, ICA, ANT-IGAC).','env']])+`<p class="muted" style="margin-top:8px">La autoridad competente certifica (R-03): eso queda <b>fuera</b> del límite del sistema.</p>`},
+ {t:'umlcu'},
+ {t:'talk',mood:'happy',say:'Cada caso de uso se **describe** con una plantilla. Así queda «Evaluar el predio frente a la línea base»:',
+  card:rows([['Identificador','CU05 · Evaluar el predio frente a la línea base','dat'],['Actores','Productor (principal) · Entidades públicas (secundario)','act'],['Precondición','El predio está registrado y el productor autorizó el uso de sus datos.','con'],['Curso básico','1 El productor pide evaluar su predio · 2 El sistema consulta las fuentes públicas («include») · 3 Compara la cobertura con la línea base del 31-12-2020 · 4 Muestra el resultado en el lenguaje del productor · 5 Guarda el resultado con su fuente y su fecha','pro'],['Camino alternativo','3a. Si hubo pérdida de bosque después de la línea base, no se acredita (R-01) y se orienta la subsanación («extend»).','pro'],['Excepción','Sin señal: el registro se guarda en el predio y se sincroniza después (RI-06).','pro'],['Postcondición','El predio queda evaluado, con fuente y fecha (R-02).','con']])},
+ {t:'order',title:'Ordena el curso básico de «Evaluar el predio»',items:['El productor pide evaluar su predio','El sistema consulta las fuentes públicas','El sistema compara la cobertura con la línea base','El sistema muestra el resultado en el lenguaje del productor','El sistema guarda el resultado con su fuente y su fecha']},
+ {t:'talk',mood:'wow',say:'Ahora el **diagrama de clases**: el plano de lo que el sistema **guarda**. Cada clase tiene nombre, atributos y métodos.',card:DG.tarjetaClases()},
+ {t:'talk',mood:'think',btn:'¡A relacionar!',say:'¿Cómo se encuentran las clases? Buscando los **sustantivos** del análisis.',
+  card:rows([['Productor · Predio · Lote · Evidencia','El modelo conceptual de la propuesta','dat'],['Requisito','Lo que exige cada comprador y en qué formato (RI-05)','con'],['FuenteDeDatos','Sanitaria (ICA), forestal (IDEAM) y predial (ANT-IGAC): toda afirmación necesita una fuente fechada (R-02)','dat']])+`<p class="muted" style="margin-top:8px">Los <b>atributos</b> son las variables del sistema: ubicación, superficie, cobertura boscosa, tenencia, volumen.</p>`},
+ {t:'umlcl'},
+ {t:'match',title:'Une cada relación con lo que significa',pairs:[['Asociación','Las dos clases colaboran'],['Agregación','«Tiene»; la parte vive sola'],['Composición','«Es parte de»; muere con el todo'],['Generalización','«Es un»: herencia'],['Dependencia','«Usa»: cambia si el otro cambia']]},
+ {t:'tf',title:'¿Verdadero o falso? UML del Pasaporte Verde',items:[
+  ['El productor es un actor del Pasaporte Verde.',true,'Usa el sistema para registrar su predio y conocer su evaluación.'],
+  ['Un caso de uso se nombra con un verbo.',true,'«Registrar», «Evaluar», «Consultar»…'],
+  ['«Orientar la subsanación» pasa siempre.',false,'Solo si el predio no cumple: por eso es «extend».'],
+  ['En la composición, la parte puede existir sin el todo.',false,'Esa es la agregación; en la composición la parte muere con el todo.'],
+  ['La generalización apunta del hijo al padre.',true,'El triángulo vacío queda en el padre: FuenteDeDatos.'],
+  ['El diagrama de clases es el diseño final de la base de datos.',false,'Es un modelo conceptual del análisis.']]},
+ {t:'battle',bank:'uml'}]},
 {id:'jefe',icon:'👑',k:'efe',boss:true,title:'Jefe final: arma tu árbol',sub:'Todo junto, como en la exposición',mon:['El Gran Desarticulado','#5E3A8C'],steps:[
  {t:'talk',mood:'wow',say:'¡Llegaste al **jefe final**! Primero arma las **raíces**: las 12 causas en sus 4 columnas.',
   card:`<p>Sin mirar. Si dudas, piensa en la pregunta de cada columna:</p>${cmp({act:C.act.q,dat:C.dat.q,pro:C.pro.q,con:C.con.q})}`},
@@ -978,7 +1026,7 @@ const MISSIONS=[
 ];
 const MBYID=Object.fromEntries(MISSIONS.map(m=>[m.id,m]));
 // Orden del camino: las misiones siguen la historia de Don Arley (los capítulos van entre ellas).
-const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','dfd','dfp','control','arbol','problema','efectos','entorno','factibilidad','jefe'];
+const ORDEN_MISIONES=['sistema','modelo','actores','datos','procesos','dfd','dfp','control','arbol','problema','efectos','entorno','factibilidad','uml','jefe'];
 MISSIONS.sort((a,b)=>ORDEN_MISIONES.indexOf(a.id)-ORDEN_MISIONES.indexOf(b.id));
 
 /* ================= vistas ================= */
@@ -1662,7 +1710,7 @@ const CAPS={viaje:{icon:'🎬',label:'El viaje del lote'},camino:{icon:'🛤️'
 const STATIONS=(()=>{
   const m=id=>{const x=MBYID[id];return{kind:'m',id,icon:x.icon,label:x.title,k:x.k}},c=id=>({kind:'cap',id,icon:CAPS[id].icon,label:CAPS[id].label,k:'efe'});
   const all=[c('viaje'),m('sistema'),m('modelo'),c('camino'),m('actores'),m('datos'),m('procesos'),m('dfd'),m('dfp'),m('control'),{kind:'x',id:'mover',icon:'🕺',label:'Ceibita dice',k:'pro'},
-    c('arbol'),m('arbol'),m('problema'),m('efectos'),m('entorno'),c('otro'),c('reto'),m('factibilidad'),m('jefe')];
+    c('arbol'),m('arbol'),m('problema'),m('efectos'),m('entorno'),c('otro'),c('reto'),m('factibilidad'),m('uml'),m('jefe')];
   return all.map((s,i)=>({...s,x:380+i*460}))})();
 const W_END=STATIONS[STATIONS.length-1].x+720;
 const SEEDS=FACTS.map((f,i)=>{const gp=Math.min(Math.floor(i/2),STATIONS.length-2);return{i,x:STATIONS[gp].x+150+(i%2)*160,hi:i%2===1}});
@@ -1937,6 +1985,9 @@ RUN.build=(host,st,ctx,done)=>{
 /* ---------- diagramas: DFD y DFP tipo Bizagi (ver diagramas.js) ---------- */
 RUN.dfd=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.DFD_CFG);
 RUN.bpmn=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.BP_CFG);
+RUN.flujo=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.FLUJO_CFG);   // diagrama de flujo clásico (misión Procesos)
+RUN.umlcu=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.CU_CFG);      // UML: casos de uso
+RUN.umlcl=(host,st,ctx,done)=>DG.motor(host,ctx,done,DG.CL_CFG);      // UML: diagrama de clases
 RUN.matriz=(host,st,ctx,done)=>MATRIZ.jugar(host,ctx,done);
 RUN.voltea=(host,st,ctx,done)=>VOLTEA.jugar(host,ctx,done);   // cartas que se voltean (factibilidad.js)   // reto de factibilidad y viabilidad (factibilidad.js)
 
