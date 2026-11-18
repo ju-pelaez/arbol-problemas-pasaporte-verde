@@ -299,7 +299,7 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 .tbar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#1E8C4E,#FFC23D);transition:width .2s linear}
 
 /* ===== construir el árbol ===== */
-.build{display:grid;gap:8px}
+.build{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
 .zone{border:3px dashed var(--ink);border-radius:14px;padding:6px;min-height:58px;color:var(--ink);background:var(--bg,#fff);transition:transform .1s;cursor:pointer}
 .zone .zh{font:700 .66rem var(--mono);letter-spacing:.04em;display:flex;justify-content:space-between;gap:4px;color:var(--c,#14231B)}
 .zone .zin{display:flex;flex-direction:column;gap:4px;margin-top:4px}
@@ -307,7 +307,9 @@ details.lst summary{cursor:pointer;font-family:var(--display);font-weight:900;co
 .zone.over{transform:scale(1.03);border-style:solid;box-shadow:0 0 0 4px var(--gold)}
 .zone.full{border-style:solid}
 .zone.hint{animation:glow .8s ease-in-out 3}
-.zrow{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.zrow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.zrow .zone{min-width:0}
+.zone .zh{flex-wrap:wrap;overflow-wrap:anywhere}
 .btrunk{background:var(--trunk);color:#fff;border:3px solid var(--ink);border-radius:14px;padding:8px 10px;font-family:var(--display);font-weight:900;font-size:.92rem;text-align:center;line-height:1.25}
 .tray{position:sticky;bottom:8px;z-index:5;display:grid;gap:8px;background:rgba(14,52,36,.94);border:3px solid var(--ink);border-radius:16px;padding:8px;margin-top:10px}
 .tray .tile{touch-action:none;cursor:grab;width:100%}
@@ -1749,7 +1751,7 @@ function world(wrap,root){
     st.px=Math.max(50,Math.min(W_END-140,st.px));
     if(st.keys.J&&st.py===0&&st.vy===0){st.vy=580;st.keys.J=false;tone('tap')}
     if(st.py>0||st.vy!==0){st.vy-=1700*dt;st.py+=st.vy*dt;if(st.py<=0){st.py=0;st.vy=0}}
-    for(const sd of SEEDS){if(S.seeds.includes(sd.i))continue;const sy=sd.hi?112:36;if(Math.abs(sd.x-st.px)<28&&Math.abs(sy-(st.py+32))<38){S.seeds.push(sd.i);save();tone('place');addXP(3);factPop(sd.i);if(S.seeds.length===FACTS.length){burst(80);toast('¡Recogiste las 24 semillas! 🌰')}}}
+    for(const sd of SEEDS){if(S.seeds.includes(sd.i))continue;const sy=sd.hi?112:36;if(Math.abs(sd.x-st.px)<28&&Math.abs(sy-(st.py+32))<38){S.seeds.push(sd.i);save();tone('place');addXP(3);factPop(sd.i);if(S.seeds.length===FACTS.length){burst(80);toast('¡Recogiste las '+FACTS.length+' semillas! 🌰')}}}
     const n=STATIONS.find(s=>Math.abs(s.x-st.px)<75)||null;
     if(n!==st.near){st.near=n;onNear(n)}
     if(st.autoS&&st.near===st.autoS&&st.tap==null){st.autoS=null;enter()}
@@ -1875,7 +1877,7 @@ RUN.speed=(host,st,ctx,done)=>{
   const kd=e=>{if(e.key==='ArrowRight'){e.preventDefault();ans(1)}if(e.key==='ArrowLeft'){e.preventDefault();ans(0)}};addEventListener('keydown',kd);
   const iv=setInterval(()=>{if(!host.isConnected){clearInterval(iv);removeEventListener('keydown',kd);return}left-=.2;$('.tbar i',host).style.width=Math.max(0,left/secs*100)+'%';$('#stt',host).textContent=Math.ceil(Math.max(0,left))+'s';if(left<=0)end()},200);
   function end(){if(ended)return;ended=true;clearInterval(iv);removeEventListener('keydown',kd);$$('[data-v]',host).forEach(b=>b.disabled=true);if(score>=8){burst(40);tone('win')}
-    $('#end',host).innerHTML=`<div class="paper center pop" style="margin-top:12px"><h2>${score>=12?'¡Relámpago!':score>=8?'¡Muy rápido!':'¡Bien!'}</h2><p><b>${score}</b> correctas de ${tot}.</p><p class="muted">${tot-score?'Lo que fallaste quedó en tu banco de errores.':'¡Sin errores!'}</p><div class="act" style="margin-top:10px"><button class="btn" id="nx">Continuar →</button></div></div>`;
+    $('#end',host).innerHTML=`<div class="paper center pop" style="margin-top:12px"><h2>${score>=12?'¡Relámpago!':score>=8?'¡Muy rápido!':score>=1?'¡Bien!':'¡Casi! Inténtalo otra vez'}</h2><p><b>${score}</b> correctas de ${tot}.</p><p class="muted">${tot-score?'Lo que fallaste quedó en tu banco de errores.':'¡Sin errores!'}</p><div class="act" style="margin-top:10px"><button class="btn" id="nx">Continuar →</button></div></div>`;
     $('#nx',host).onclick=()=>done()}
   nq();
 };

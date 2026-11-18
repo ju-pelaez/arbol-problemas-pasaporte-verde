@@ -297,7 +297,7 @@ const DFD_CFG={
   cierre:{
     pista:'¡Diagrama completo! Mira lo que muestra del sistema de hoy.',
     html:`<h4>🌳 Lo que cuenta tu DFD del sistema de hoy</h4><ul>
-      <li>La flecha <b>8</b> lleva la <b>evidencia de origen incompleta</b>: es la salida que falla.</li>
+      <li>La flecha de <b>Acreditar el origen → Comercializar</b> lleva la <b>evidencia de origen incompleta</b>: es la salida que falla.</li>
       <li>Mira lo que <b>NO</b> hay: ninguna flecha lleva la <b>cobertura boscosa</b> ni la <b>ubicación</b> del predio hasta «Acreditar el origen». Ese dato falta donde se necesita.</li>
       <li>Los datos quedan en <b>carpetas y registros separados</b>, y el acopio no guarda de qué predio salió cada parte del lote.</li></ul>
       <p style="margin-top:6px"><small>Para que quepa en el celular juntamos Producir y Movilizar en el productor. Es un diagrama del sistema de HOY: sin base de datos ni app nuevas.</small></p>`

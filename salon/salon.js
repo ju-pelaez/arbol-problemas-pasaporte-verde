@@ -10,6 +10,9 @@
 
 const $ = (s, r = document) => r.querySelector(s);
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// Lo que llega por la red al celular se revisa antes de pintarlo: un color solo si es #hex y un número solo si es número.
+const colorSeguro = c => /^#[0-9a-f]{3,8}$/i.test(String(c)) ? c : '#888';
+const num = v => Number.isFinite(+v) ? +v : 0;
 const app = $('#app');
 const params = new URLSearchParams(location.search);
 const PREFIJO = 'arbolvivo-salon-';
@@ -305,7 +308,7 @@ function anfitrion() {
     const b = document.createElement('div');
     b.className = 'burbuja';
     b.style.setProperty('--c', (EQUIPOS[msg.eq] || EQUIPOS[0]).c);
-    b.innerHTML = `<span class="av">${msg.avatar}</span><span><b>${esc(msg.nombre)}</b>${esc(msg.texto)}</span>`;
+    b.innerHTML = `<span class="av">${esc(msg.avatar)}</span><span><b>${esc(msg.nombre)}</b>${esc(msg.texto)}</span>`;
     caja.appendChild(b);
     while (caja.children.length > 5) caja.firstElementChild.remove();
     sonar('tic');
@@ -669,7 +672,7 @@ function jugador(codigo) {
   let guardado = {};
   try { guardado = JSON.parse(localStorage.getItem(CLAVE)) || {}; } catch (e) { /* sin almacenamiento */ }
   const yo = { pid: guardado.pid || 'j' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36), nombre: guardado.nombre || '', avatar: '📱', equipo: -1, puntos: 0 };
-  let peer = null, conn = null, idPregunta = -1, dentro = false, intentos = 0, reintento = null, espera = null, ultReac = 0;
+  let peer = null, conn = null, idPregunta = -1, dentro = false, intentos = 0, reintento = null, espera = null, camino = null, lento = null, ultReac = 0;
   let chatOn = true, ultChat = 0;
   const feed = [];   // los últimos mensajes del chat del salón
   const guardar = () => { try { localStorage.setItem(CLAVE, JSON.stringify({ pid: yo.pid, nombre: yo.nombre })); } catch (e) { /* no pasa nada */ } };
@@ -685,7 +688,7 @@ function jugador(codigo) {
   let ultimaPantalla = '';
   // Chat en el celular: los últimos mensajes, frases rápidas y una caja para escribir.
   const feedHTML = () => feed.length
-    ? feed.map(m => `<div class="msg${m.pid === yo.pid ? ' mio' : ''}" style="--c:${(EQUIPOS[m.eq] || EQUIPOS[0]).c}"><span>${m.avatar}</span><p><b>${esc(m.nombre)}</b>${esc(m.texto)}</p></div>`).join('')
+    ? feed.map(m => `<div class="msg${m.pid === yo.pid ? ' mio' : ''}" style="--c:${(EQUIPOS[m.eq] || EQUIPOS[0]).c}"><span>${esc(m.avatar)}</span><p><b>${esc(m.nombre)}</b>${esc(m.texto)}</p></div>`).join('')
     : '<p class="vacio-chat">Aquí salen los mensajes del salón 💬</p>';
   const chatHTML = () => chatOn ? `<div class="chat-cel">
       <div class="chat-feed" id="chat-feed">${feedHTML()}</div>
@@ -712,7 +715,7 @@ function jugador(codigo) {
     // Si es la misma clase de pantalla que la anterior (un toque dentro de un juego), no se repite la animación de entrada.
     const tipo = html.slice(0, 40), quieto = tipo === ultimaPantalla;
     ultimaPantalla = tipo;
-    app.innerHTML = `<div class="cel${quieto ? ' quieto' : ''}">${eq ? `<div class="mi-eq" style="--c:${eq.c}">${eq.ic} Equipo ${eq.n} <span>${yo.avatar} ${esc(yo.nombre)} · ${yo.puntos} pts</span></div>` : ''}${html}
+    app.innerHTML = `<div class="cel${quieto ? ' quieto' : ''}">${eq ? `<div class="mi-eq" style="--c:${eq.c}">${eq.ic} Equipo ${eq.n} <span>${esc(yo.avatar)} ${esc(yo.nombre)} · ${num(yo.puntos)} pts</span></div>` : ''}${html}
       ${reacciones ? `<div class="reac">${REACCIONES.map(e => `<button data-e="${e}" aria-label="Reaccionar ${e}">${e}</button>`).join('')}</div>${chatHTML()}` : ''}</div>`;
     const inp = $('#chat-txt');
     if (inp) { inp.value = escrito; if (escribiendo) inp.focus(); }
@@ -730,6 +733,8 @@ function jugador(codigo) {
   }
 
   function pedirNombre(msj) {
+    // Si se vuelve a pedir el nombre, se apagan las esperas de antes: así ningún aviso viejo tapa este mensaje.
+    clearTimeout(camino); clearTimeout(reintento); clearTimeout(espera); clearTimeout(lento);
     app.innerHTML = `<div class="cel">
       <div class="avatar">🌳</div><h1>Reto del salón</h1><p>Sala <b>${esc(codigo)}</b>. ¿Cómo te llamas?</p>
       <input id="nombre" maxlength="14" autocomplete="off" placeholder="Tu nombre" value="${esc(yo.nombre)}">
@@ -760,8 +765,13 @@ function jugador(codigo) {
   function conectar() {
     clearTimeout(reintento);
     clearTimeout(espera);
-    // Si en 25 s no entra la primera vez, se avisa (sala equivocada o sin internet).
-    if (!dentro) espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 25000);
+    clearTimeout(lento);
+    // Si en 45 s no entra la primera vez, se avisa (sala equivocada o sin internet).
+    // El servidor gratuito a veces tarda: a los 12 s se avisa que sigue intentando, para que nadie se rinda antes.
+    if (!dentro) {
+      lento = setTimeout(() => { if (!dentro) aviso('El servidor está lento, sigue intentando… no cierres la página.'); }, 12000);
+      espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 45000);
+    }
     if (peer && !peer.destroyed && peer.open) return abrirConexion();
     if (peer && !peer.destroyed && peer.disconnected) { try { peer.reconnect(); } catch (e) { /* abajo se crea otro */ } return; }
     if (peer && !peer.destroyed) return;   // todavía abriendo
@@ -794,7 +804,8 @@ function jugador(codigo) {
     c.on('close', () => { if (c === conn) perdida(); });
     c.on('error', () => { if (c === conn) perdida(); });
     // Al entrar, si en 8 s la conexión no abrió, se prueba otra vez (a veces el primer camino no sirve).
-    if (!dentro) setTimeout(() => {
+    clearTimeout(camino);
+    if (!dentro) camino = setTimeout(() => {
       if (dentro || c !== conn || c.open || caminos >= 2) return;
       caminos++;
       aviso('Buscando otro camino para conectar…');
@@ -840,27 +851,27 @@ function jugador(codigo) {
       ponerTema(d.tema);
       if (d.chat === false) chatOn = false; else if (d.chat === true) chatOn = true;
       const primera = !dentro;
-      dentro = true; clearTimeout(espera);
+      dentro = true; clearTimeout(espera); clearTimeout(lento); clearTimeout(camino);
       if (d.avatar) yo.avatar = d.avatar;
-      if (d.equipo >= 0) yo.equipo = d.equipo;
-      yo.puntos = d.puntos || 0;
+      if (num(d.equipo) >= 0 && EQUIPOS[num(d.equipo)]) yo.equipo = num(d.equipo);
+      yo.puntos = num(d.puntos);
       if (d.vuelve) return;   // ya estaba jugando: el proyector manda enseguida la pantalla donde iba
       if (primera) { vibrar([30, 40, 30]); mantenerPantalla(); }
       const eq = EQUIPOS[yo.equipo];
-      pantalla(`<div class="avatar">${yo.avatar}</div><h1>¡Estás dentro, ${esc(yo.nombre)}!</h1>
+      pantalla(`<div class="avatar">${esc(yo.avatar)}</div><h1>¡Estás dentro, ${esc(yo.nombre)}!</h1>
         ${eq ? `<div class="tu-eq" style="--c:${eq.c}">${eq.ic} Eres del equipo <b>${eq.n}</b></div>` : ''}
         <p>Mira el proyector. Puedes hablar con tu equipo antes de responder. Mientras esperas, manda reacciones 👇</p>`, true);
     }
     if (d.t === 'pregunta') {
       idPregunta = d.id;
       vibrar(40);
-      const cab = `<p><b>Reto ${d.n} de ${d.total}</b> · ${esc(d.titulo)}</p>`;
+      const cab = `<p><b>Reto ${num(d.n)} de ${num(d.total)}</b> · ${esc(d.titulo)}</p>`;
       if (d.tipo === 'clasifica') jugarClasifica(d, cab);
       else if (d.tipo === 'ordena') jugarOrdena(d, cab);
       else if (d.tipo === 'une') jugarUne(d, cab);
       else {
         pantalla(`${cab}${d.texto ? `<div class="enun-cel">${esc(d.texto)}</div>` : ''}
-          <div class="ops">${d.opciones.map((o, k) => `<button class="op" data-k="${k}" style="--c:${o.color}"><span class="f">${o.forma}</span>${o.ic ? o.ic + ' ' : ''}${esc(o.txt)}</button>`).join('')}</div>`);
+          <div class="ops">${d.opciones.map((o, k) => `<button class="op" data-k="${k}" style="--c:${colorSeguro(o.color)}"><span class="f">${esc(o.forma)}</span>${o.ic ? esc(o.ic) + ' ' : ''}${esc(o.txt)}</button>`).join('')}</div>`);
         app.querySelectorAll('.op').forEach(b => b.onclick = () => {
           if (!conn || !conn.open) return;
           conn.send({ t: 'resp', id: idPregunta, k: +b.dataset.k });
@@ -871,7 +882,7 @@ function jugador(codigo) {
     }
     if (d.t === 'capitulo') {
       vibrar([20, 30, 20]);
-      pantalla(`<div class="cap-cel"><small>CAPÍTULO ${d.n} DE ${d.total}</small><div class="grande">${d.ic}</div><h1>${esc(d.titulo)}</h1><p>${esc(d.texto)}</p></div>`, true);
+      pantalla(`<div class="cap-cel"><small>CAPÍTULO ${num(d.n)} DE ${num(d.total)}</small><div class="grande">${esc(d.ic)}</div><h1>${esc(d.titulo)}</h1><p>${esc(d.texto)}</p></div>`, true);
     }
     if (d.t === 'cuenta') pantalla(`<div class="grande latido">⏱</div><h1>¡Prepárate!</h1><p>El reto empieza en 3 segundos.</p>`);
     if (d.t === 'esperar') pantalla(`<div class="grande">⏳</div><h1>Ya respondiste</h1><p>Mira el proyector 👀</p>`, true);
@@ -879,17 +890,17 @@ function jugador(codigo) {
       yo.puntos = d.puntos;
       vibrar(d.ok ? [30, 40, 30] : 120);
       const eq = EQUIPOS[yo.equipo];
-      const lineaEq = eq ? `<p>Tu equipo <b>${eq.n}</b> va <b>${d.eqPuesto}.º</b> de 4</p>` : '';
+      const lineaEq = eq ? `<p>Tu equipo <b>${eq.n}</b> va <b>${num(d.eqPuesto)}.º</b> de 4</p>` : '';
       pantalla(d.respondio
-        ? `<div class="res ${d.ok ? 'ok' : 'no'}">${d.ok ? `✔ ¡${d.partes ? 'Perfecto' : 'Bien'}!<br>+<span data-cuenta="${d.gano}">0</span>` : d.partes ? `${d.bien} de ${d.partes} bien<br>+<span data-cuenta="${d.gano}">0</span>` : `✘ Era: ${esc(d.correcta)}`}</div>${d.racha >= 2 ? `<p class="racha-cel">🔥 ¡Racha de ${d.racha}! Puntos extra</p>` : ''}<p>Vas de <b>${d.puesto}</b> de ${d.de} · ${d.puntos} puntos</p>${lineaEq}<div class="porque-cel">💡 ${esc(d.porque || '')}</div>`
+        ? `<div class="res ${d.ok ? 'ok' : 'no'}">${d.ok ? `✔ ¡${d.partes ? 'Perfecto' : 'Bien'}!<br>+<span data-cuenta="${num(d.gano)}">0</span>` : d.partes ? `${num(d.bien)} de ${num(d.partes)} bien<br>+<span data-cuenta="${num(d.gano)}">0</span>` : `✘ Era: ${esc(d.correcta)}`}</div>${num(d.racha) >= 2 ? `<p class="racha-cel">🔥 ¡Racha de ${num(d.racha)}! Puntos extra</p>` : ''}<p>Vas de <b>${num(d.puesto)}</b> de ${num(d.de)} · ${num(d.puntos)} puntos</p>${lineaEq}<div class="porque-cel">💡 ${esc(d.porque || '')}</div>`
         : `<div class="grande">⏱</div><h1>Se acabó el tiempo</h1><p>${d.correcta ? `Era: <b>${esc(d.correcta)}</b>` : 'Mira la solución en el proyector.'}</p>${lineaEq}<div class="porque-cel">💡 ${esc(d.porque || '')}</div>`, true);
       contar(app);
     }
     if (d.t === 'fin') {
       yo.puntos = d.puntos;
       vibrar([60, 60, 60, 60, 200]);
-      pantalla(`<div class="grande">${d.puesto <= 3 ? ['🥇', '🥈', '🥉'][d.puesto - 1] : '🌳'}</div><h1>Quedaste de ${d.puesto} de ${d.de}</h1>
-        <p>${d.puntos} puntos · Tu equipo quedó <b>${d.eqPuesto}.º</b> · Ganó <b>${esc(d.eqGanador)}</b></p><p>El salón armó ${d.piezas} de 10 piezas del árbol.</p>`, true);
+      pantalla(`<div class="grande">${d.puesto <= 3 ? ['🥇', '🥈', '🥉'][d.puesto - 1] : '🌳'}</div><h1>Quedaste de ${num(d.puesto)} de ${num(d.de)}</h1>
+        <p>${num(d.puntos)} puntos · Tu equipo quedó <b>${num(d.eqPuesto)}.º</b> · Ganó <b>${esc(d.eqGanador)}</b></p><p>El salón armó ${num(d.piezas)} de 10 piezas del árbol.</p>`, true);
     }
   }
 
@@ -910,7 +921,7 @@ function jugador(codigo) {
       const n = sel.length;
       pantalla(`${cab}<div class="prog">${d.items.map((_, k) => `<i class="${k < n ? 'ya' : k === n ? 'ahora' : ''}"></i>`).join('')}</div>
         <div class="enun-cel grande-txt">${esc(d.items[n])}</div>
-        <div class="ops">${d.comps.map((c, k) => `<button class="op" data-k="${k}" style="--c:${c.color}"><span class="f">${c.ic}</span>${esc(c.txt)}</button>`).join('')}</div>`);
+        <div class="ops">${d.comps.map((c, k) => `<button class="op" data-k="${k}" style="--c:${colorSeguro(c.color)}"><span class="f">${esc(c.ic)}</span>${esc(c.txt)}</button>`).join('')}</div>`);
       app.querySelectorAll('.op').forEach(b => b.onclick = () => {
         sel.push(+b.dataset.k);
         vibrar(12);
@@ -946,8 +957,8 @@ function jugador(codigo) {
       const deQuien = m => pares.indexOf(m);
       pantalla(`${cab}<div class="enun-cel">Toca una raíz y después su efecto.</div>
         <div class="une-cel">
-          <div>${d.izq.map((t, n) => `<button class="ficha-cel izq${n === activo ? ' activa' : ''}${pares[n] >= 0 ? ' unida' : ''}" data-n="${n}" style="--c:${d.colores[n]}">${esc(t)}</button>`).join('')}</div>
-          <div>${d.der.map((t, m) => `<button class="ficha-cel der${deQuien(m) >= 0 ? ' unida' : ''}" data-m="${m}" style="--c:${deQuien(m) >= 0 ? d.colores[deQuien(m)] : 'transparent'}">${esc(t)}</button>`).join('')}</div>
+          <div>${d.izq.map((t, n) => `<button class="ficha-cel izq${n === activo ? ' activa' : ''}${pares[n] >= 0 ? ' unida' : ''}" data-n="${n}" style="--c:${colorSeguro(d.colores[n])}">${esc(t)}</button>`).join('')}</div>
+          <div>${d.der.map((t, m) => `<button class="ficha-cel der${deQuien(m) >= 0 ? ' unida' : ''}" data-m="${m}" style="--c:${deQuien(m) >= 0 ? colorSeguro(d.colores[deQuien(m)]) : 'transparent'}">${esc(t)}</button>`).join('')}</div>
         </div>
         ${listo ? '<button class="btn" id="listo">Enviar mis parejas ✓</button>' : ''}`);
       app.querySelectorAll('.ficha-cel.izq').forEach(b => b.onclick = () => { activo = +b.dataset.n; pintar(); });

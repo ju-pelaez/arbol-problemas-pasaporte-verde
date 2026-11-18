@@ -145,10 +145,10 @@ class CanalPeer extends Emisor {
     const vieja = this.conns.get(otro); if (vieja) vieja._cerrar();
     const c = new CanalConexion(this, otro);
     this.conns.set(otro, c);
-    // Primero se mira si la sala existe (su "vivo"). Si en 5 s no aparece, no hay sala con ese código.
+    // Primero se mira si la sala existe (su "vivo"). Si en 15 s no aparece, no hay sala con ese código (el servidor gratuito a veces tarda).
     this.cliente.subscribe(todos(otro), { qos: 1 });
     this.cliente.subscribe(vivo(otro), { qos: 1 }, () => {
-      c.espera = setTimeout(() => { if (!c.open && !c.cerrada && !c.pedida) { this._olvidar(c); this.emit('error', { type: 'peer-unavailable' }); } }, 5000);
+      c.espera = setTimeout(() => { if (!c.open && !c.cerrada && !c.pedida) { this._olvidar(c); this.emit('error', { type: 'peer-unavailable' }); } }, 15000);
     });
     return c;
   }
