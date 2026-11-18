@@ -770,7 +770,7 @@ function jugador(codigo) {
     // Si en 45 s no entra la primera vez, se avisa (sala equivocada o sin internet).
     // El servidor gratuito a veces tarda: a los 12 s se avisa que sigue intentando, para que nadie se rinda antes.
     if (!dentro) {
-      lento = setTimeout(() => { if (!dentro) aviso('El servidor está lento, sigue intentando… no cierres la página.'); }, 12000);
+      lento = setTimeout(() => { if (!dentro) aviso('Está tardando: revisa que el código sea el del proyector. Seguimos intentando…'); }, 12000);
       espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 45000);
     }
     if (peer && !peer.destroyed && peer.open) return abrirConexion();

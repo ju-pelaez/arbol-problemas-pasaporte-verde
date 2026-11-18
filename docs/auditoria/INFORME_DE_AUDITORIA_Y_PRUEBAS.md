@@ -170,12 +170,12 @@ Trabajo pedido por Juan Pablo para cerrar el juego como producto académico. Com
 |---|---|---|---|
 | E1 | ✅ Corregido | El número de cada flecha del DFD es fijo (orden del diagrama), la leyenda se ordena por número y el cierre dice «flecha 8 (3 Acreditar el origen → 4 Comercializar)» | Jugado completo en local |
 | E2 | ✅ Corregido | El aviso usa `FACTS.length` (27) | Revisión de código |
-| E3 | ✅ Corregido | Temporizador `camino` guardado y apagado en `pedirNombre()` | Revisión de código; sin prueba de red real |
+| E3 | ✅ Corregido | Temporizador `camino` guardado y apagado en `pedirNombre()` | Probado en local con una sala inexistente: el aviso «No encontramos la sala» se queda (antes lo tapaba «Buscando otro camino») |
 | E4 | ✅ Corregido | `minmax(0,1fr)` en `.build`/`.zrow` y `min-width:0` en las zonas | A 375 px: sin desborde, columna Control completa |
 | E5 | ✅ Corregido | Con 0 aciertos dice «¡Casi! Inténtalo otra vez» | Revisión de código |
 | R1 | 🟡 Mitigado | Aviso en la sala y en el celular: usar solo el primer nombre o un apodo. Se descartó el «tema secreto» porque un suscriptor a `arbolvivo/#` igual ve los temas. Mejora futura: cifrar con una clave que vaya en el QR | Revisión de código |
 | R2 | ✅ Corregido | `esc()` en avatar, forma, ícono y textos; `colorSeguro()` para colores; `num()` para números que llegan por la red | Revisión de código |
-| R3 | ✅ Corregido | Espera de sala 5 s → 15 s (`canal.js`); espera total 25 s → 45 s; aviso «El servidor está lento…» a los 12 s | Revisión de código; sin prueba con broker lento |
+| R3 | ✅ Corregido | Espera de sala 5 s → 12 s (`canal.js`); espera total 25 s → 45 s; aviso «Está tardando: revisa el código…» a los 12 s; espera de sala 5 s → 12 s | Revisión de código; sin prueba con broker lento |
 | D1-D7 | ✅ README al día | 15 misiones, 10 retos de escoger, prueba de 49 = 48 simulados + 1 real con 11 retos. Las guías PDF quedan como de la versión anterior | — |
 
 ### Diagramas y temas
