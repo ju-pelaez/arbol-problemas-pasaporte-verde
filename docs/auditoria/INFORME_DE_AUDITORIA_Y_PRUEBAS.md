@@ -157,3 +157,36 @@ Ordenadas por valor/esfuerzo. Ninguna se aplicó.
 - `docs/auditoria/GUIA_PARA_FUTUROS_AGENTES.md`
 
 No se modificó ni borró ningún archivo existente. No hay commits nuevos.
+
+---
+
+## Actualización del 18-11-2026 (rama local `mejoras-curso`, sin publicar)
+
+Trabajo pedido por Juan Pablo para cerrar el juego como producto académico. Commits locales: `b8ffa58` (auditoría), `99fb668` (errores), `1a71040` (laboratorio de diagramas), `b2b4472` (docs/uml), `d8cabff` (temas del curso) y el de documentación.
+
+### Errores y riesgos
+
+| ID | Estado | Qué se hizo | Verificación |
+|---|---|---|---|
+| E1 | ✅ Corregido | El número de cada flecha del DFD es fijo (orden del diagrama), la leyenda se ordena por número y el cierre dice «flecha 8 (3 Acreditar el origen → 4 Comercializar)» | Jugado completo en local |
+| E2 | ✅ Corregido | El aviso usa `FACTS.length` (27) | Revisión de código |
+| E3 | ✅ Corregido | Temporizador `camino` guardado y apagado en `pedirNombre()` | Revisión de código; sin prueba de red real |
+| E4 | ✅ Corregido | `minmax(0,1fr)` en `.build`/`.zrow` y `min-width:0` en las zonas | A 375 px: sin desborde, columna Control completa |
+| E5 | ✅ Corregido | Con 0 aciertos dice «¡Casi! Inténtalo otra vez» | Revisión de código |
+| R1 | 🟡 Mitigado | Aviso en la sala y en el celular: usar solo el primer nombre o un apodo. Se descartó el «tema secreto» porque un suscriptor a `arbolvivo/#` igual ve los temas. Mejora futura: cifrar con una clave que vaya en el QR | Revisión de código |
+| R2 | ✅ Corregido | `esc()` en avatar, forma, ícono y textos; `colorSeguro()` para colores; `num()` para números que llegan por la red | Revisión de código |
+| R3 | ✅ Corregido | Espera de sala 5 s → 15 s (`canal.js`); espera total 25 s → 45 s; aviso «El servidor está lento…» a los 12 s | Revisión de código; sin prueba con broker lento |
+| D1-D7 | ✅ README al día | 15 misiones, 10 retos de escoger, prueba de 49 = 48 simulados + 1 real con 11 retos. Las guías PDF quedan como de la versión anterior | — |
+
+### Diagramas y temas
+
+- Diagrama de flujo clásico (M5), DFD con nivel 0 y numeración (M6), DFP igual al BPMN AS-IS del proyecto con 5 carriles (M7), misión 14 UML con casos de uso y clases. Jugados completos en local con un solucionador automático: sin errores de consola.
+- `docs/uml/`: 6 SVG exportados del mismo código del juego + Mermaid de clases, actividades, componentes y despliegue (los 4 bloques Mermaid se validaron con mermaid 10.9.1).
+- `docs/MATRIZ_TEMAS_DEL_CURSO.md`: tema → misión → cómo se juega, con lo agregado en esta revisión.
+- Vista móvil (375 × 812): sin desborde horizontal de la página; el BPMN de 5 carriles se desliza de lado dentro de su lienzo para que la letra siga legible.
+
+### No verificado en esta revisión
+
+- Partida real del Reto del salón con celulares después de E3/R2/R3 (solo revisión de código y sintaxis).
+- Las 15 misiones jugadas de principio a fin por una persona (se probaron los pasos nuevos uno por uno y los diagramas completos).
+- Lector de pantalla y Lighthouse.

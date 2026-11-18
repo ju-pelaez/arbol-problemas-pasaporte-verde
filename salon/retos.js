@@ -59,7 +59,7 @@ const EFECTOS_DIRECTOS = [
 
 const barajar = l => { const a = l.slice(); for (let n = a.length - 1; n > 0; n--) { const m = Math.floor(Math.random() * (n + 1)); [a[n], a[m]] = [a[m], a[n]]; } return a; };
 
-// Arma los 11 retos de una partida (las fallas y el orden de las fichas cambian cada vez).
+// Arma los 10 retos de una partida, todos de escoger (las fallas que salen cambian cada vez).
 function armarRetosArbol() {
   const azar = l => l[Math.floor(Math.random() * l.length)];
   const parte = (texto, correcta, porque, pieza) => ({ tipo: 'parte', titulo: '¿En qué parte del árbol va?', texto, opciones: PARTES.map(p => ({ txt: p.t, ic: p.ic })), correcta: PARTES.findIndex(p => p.k === correcta), porque, pieza });
