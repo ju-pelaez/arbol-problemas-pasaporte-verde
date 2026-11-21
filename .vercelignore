@@ -1,0 +1,4 @@
+# Lo que NO se publica en el sitio web (sí queda en el repositorio).
+# El juego no usa ningún archivo de docs/: son documentos del trabajo académico
+# (manual de usuario, guías, diagramas y notas de análisis) y no deben quedar en internet.
+docs/
