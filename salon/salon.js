@@ -756,6 +756,7 @@ function jugador(codigo) {
         </div>
         <p id="msj">Esto tarda unos segundos…</p></div>`;
       intentos = 0;
+      iniciarEspera();
       conectar();
     };
     $('#entrar').onclick = entrar;
@@ -763,16 +764,17 @@ function jugador(codigo) {
     $('#nombre').focus();
   }
 
+  // Las esperas de la primera entrada se ponen UNA vez: los reintentos no las vuelven a empezar.
+  // Si en 60 s no entra, se avisa (sala equivocada o sin internet). El servidor gratuito a veces tarda:
+  // a los 12 s se avisa que sigue intentando, para que nadie se rinda antes.
+  function iniciarEspera() {
+    clearTimeout(espera); clearTimeout(lento);
+    lento = setTimeout(() => { if (!dentro) aviso('Está tardando: revisa que el código sea el del proyector. Seguimos intentando…'); }, 12000);
+    espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 60000);
+  }
+
   function conectar() {
     clearTimeout(reintento);
-    clearTimeout(espera);
-    clearTimeout(lento);
-    // Si en 45 s no entra la primera vez, se avisa (sala equivocada o sin internet).
-    // El servidor gratuito a veces tarda: a los 12 s se avisa que sigue intentando, para que nadie se rinda antes.
-    if (!dentro) {
-      lento = setTimeout(() => { if (!dentro) aviso('Está tardando: revisa que el código sea el del proyector. Seguimos intentando…'); }, 12000);
-      espera = setTimeout(() => { if (!dentro) pedirNombre('No se pudo entrar. Revisa el código del proyector y tu internet (prueba con datos móviles), y vuelve a intentar.'); }, 45000);
-    }
     if (peer && !peer.destroyed && peer.open) return abrirConexion();
     if (peer && !peer.destroyed && peer.disconnected) { try { peer.reconnect(); } catch (e) { /* abajo se crea otro */ } return; }
     if (peer && !peer.destroyed) return;   // todavía abriendo
@@ -786,8 +788,12 @@ function jugador(codigo) {
     });
     peer.on('disconnected', () => { if (!peer.destroyed) reintentar(); });
     peer.on('error', e => {
-      if (e.type === 'peer-unavailable' && !dentro) { clearTimeout(espera); return pedirNombre(`No encontramos la sala ${codigo}. Revisa el código del proyector.`); }
+      // El servidor gratuito a veces tarda en avisar que la sala existe: mientras corre la espera, sigo buscándola.
+      // Si de verdad no existe, al final de la espera sale el aviso de revisar el código.
+      if (e.type === 'peer-unavailable' && !dentro) { aviso(`Buscando la sala ${codigo}… revisa que el código sea el del proyector.`); clearTimeout(reintento); reintento = setTimeout(() => { if (!dentro && peer && peer.open) abrirConexion(); }, 1000); return; }
       if (['network', 'server-error', 'socket-error', 'socket-closed'].includes(e.type)) { try { peer.destroy(); } catch (x) { /* listo */ } }
+      // Mientras entra por primera vez, un error de red no lo deja quieto: vuelve a intentar hasta que se cumpla la espera.
+      if (!dentro) { clearTimeout(reintento); reintento = setTimeout(conectar, 1500); return; }
       reintentar();
     });
   }
@@ -980,6 +986,7 @@ function jugador(codigo) {
   if (yo.nombre && guardado.pid) {   // ya había entrado a esta sala: vuelve directo
     app.innerHTML = `<div class="cel carga-cel"><div class="carga"><span>🌳</span></div><h1>Volviendo a la sala…</h1><p>Hola de nuevo, ${esc(yo.nombre)}. Vuelves con tus puntos.</p><p id="msj"></p></div>`;
     dentro = false;
+    iniciarEspera();
     conectar();
   } else pedirNombre();
 }

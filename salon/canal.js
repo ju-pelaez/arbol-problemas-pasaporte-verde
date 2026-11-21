@@ -46,7 +46,8 @@ class CanalPeer extends Emisor {
       : { topic: buzon(this.sala), payload: JSON.stringify({ de: this.id, tipo: 'cierra' }), qos: 1 };
     this.cliente = mqtt.connect(CANAL_SERVIDOR, {
       clientId: this.id + '-' + Math.random().toString(36).slice(2, 6),
-      clean: true, keepalive: 15, reconnectPeriod: 2000, connectTimeout: 10000, will: despedida,
+      // El servidor gratuito a veces tarda más de 10 s en responder: espero hasta 30 s antes de dar el intento por perdido.
+      clean: true, keepalive: 15, reconnectPeriod: 2000, connectTimeout: 30000, will: despedida,
     });
     this.cliente.on('connect', () => this._conectado());
     this.cliente.on('message', (tema, datos) => this._mensaje(tema, datos));
